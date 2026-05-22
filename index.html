@@ -1,768 +1,716 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wykreślanka - Pielęgniarstwo</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --background: oklch(0.9816 0.0017 247.8390);
-            --foreground: oklch(0.1649 0.0352 281.8285);
-            --card: oklch(1.0000 0 0);
-            --card-foreground: oklch(0.1649 0.0352 281.8285);
-            --popover: oklch(1.0000 0 0);
-            --popover-foreground: oklch(0.1649 0.0352 281.8285);
-            --primary: oklch(0.6726 0.2904 341.4084);
-            --primary-foreground: oklch(1.0000 0 0);
-            --secondary: oklch(0.9595 0.0200 286.0164);
-            --secondary-foreground: oklch(0.1649 0.0352 281.8285);
-            --muted: oklch(0.9595 0.0200 286.0164);
-            --muted-foreground: oklch(0.1649 0.0352 281.8285);
-            --accent: oklch(0.8903 0.1739 171.2690);
-            --accent-foreground: oklch(0.1649 0.0352 281.8285);
-            --destructive: oklch(0.6535 0.2348 34.0370);
-            --destructive-foreground: oklch(1.0000 0 0);
-            --border: oklch(0.9205 0.0086 225.0878);
-            --input: oklch(0.9205 0.0086 225.0878);
-            --ring: oklch(0.6726 0.2904 341.4084);
-            --chart-1: oklch(0.6726 0.2904 341.4084);
-            --chart-2: oklch(0.5488 0.2944 299.0954);
-            --chart-3: oklch(0.8442 0.1457 209.2851);
-            --chart-4: oklch(0.8903 0.1739 171.2690);
-            --chart-5: oklch(0.9168 0.1915 101.4070);
-            --sidebar: oklch(0.9595 0.0200 286.0164);
-            --sidebar-foreground: oklch(0.1649 0.0352 281.8285);
-            --sidebar-primary: oklch(0.6726 0.2904 341.4084);
-            --sidebar-primary-foreground: oklch(1.0000 0 0);
-            --sidebar-accent: oklch(0.8903 0.1739 171.2690);
-            --sidebar-accent-foreground: oklch(0.1649 0.0352 281.8285);
-            --sidebar-border: oklch(0.9205 0.0086 225.0878);
-            --sidebar-ring: oklch(0.6726 0.2904 341.4084);
-            --font-sans: Outfit, sans-serif;
-            --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-            --font-mono: Fira Code, monospace;
-            --radius: 0.5rem;
-            --shadow-x: 0px;
-            --shadow-y: 4px;
-            --shadow-blur: 8px;
-            --shadow-spread: -2px;
-            --shadow-opacity: 0.1;
-            --shadow-color: hsl(0 0% 0%);
-            --shadow-2xs: 0px 4px 8px -2px hsl(0 0% 0% / 0.05);
-            --shadow-xs: 0px 4px 8px -2px hsl(0 0% 0% / 0.05);
-            --shadow-sm: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 1px 2px -3px hsl(0 0% 0% / 0.10);
-            --shadow: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 1px 2px -3px hsl(0 0% 0% / 0.10);
-            --shadow-md: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 2px 4px -3px hsl(0 0% 0% / 0.10);
-            --shadow-lg: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 4px 6px -3px hsl(0 0% 0% / 0.10);
-            --shadow-xl: 0px 4px 8px -2px hsl(0 0% 0% / 0.10), 0px 8px 10px -3px hsl(0 0% 0% / 0.10);
-            --shadow-2xl: 0px 4px 8px -2px hsl(0 0% 0% / 0.25);
-            --tracking-normal: 0em;
-            --spacing: 0.25rem;
-        }
-
-        @theme inline {
-            --color-background: var(--background);
-            --color-foreground: var(--foreground);
-            --color-card: var(--card);
-            --color-card-foreground: var(--card-foreground);
-            --color-popover: var(--popover);
-            --color-popover-foreground: var(--popover-foreground);
-            --color-primary: var(--primary);
-            --color-primary-foreground: var(--primary-foreground);
-            --color-secondary: var(--secondary);
-            --color-secondary-foreground: var(--secondary-foreground);
-            --color-muted: var(--muted);
-            --color-muted-foreground: var(--muted-foreground);
-            --color-accent: var(--accent);
-            --color-accent-foreground: var(--accent-foreground);
-            --color-destructive: var(--destructive);
-            --color-destructive-foreground: var(--destructive-foreground);
-            --color-border: var(--border);
-            --color-input: var(--input);
-            --color-ring: var(--ring);
-            --color-chart-1: var(--chart-1);
-            --color-chart-2: var(--chart-2);
-            --color-chart-3: var(--chart-3);
-            --color-chart-4: var(--chart-4);
-            --color-chart-5: var(--chart-5);
-            --color-sidebar: var(--sidebar);
-            --color-sidebar-foreground: var(--sidebar-foreground);
-            --color-sidebar-primary: var(--sidebar-primary);
-            --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-            --color-sidebar-accent: var(--sidebar-accent);
-            --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-            --color-sidebar-border: var(--sidebar-border);
-            --color-sidebar-ring: var(--sidebar-ring);
-
-            --font-sans: var(--font-sans);
-            --font-mono: var(--font-mono);
-            --font-serif: var(--font-serif);
-
-            --radius-sm: calc(var(--radius) - 4px);
-            --radius-md: calc(var(--radius) - 2px);
-            --radius-lg: var(--radius);
-            --radius-xl: calc(var(--radius) + 4px);
-
-            --shadow-2xs: var(--shadow-2xs);
-            --shadow-xs: var(--shadow-xs);
-            --shadow-sm: var(--shadow-sm);
-            --shadow: var(--shadow);
-            --shadow-md: var(--shadow-md);
-            --shadow-lg: var(--shadow-lg);
-            --shadow-xl: var(--shadow-xl);
-            --shadow-2xl: var(--shadow-2xl);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            background: var(--background);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
-            overflow-x: hidden;
-        }
-
-        .container {
-            background: var(--card);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            box-shadow: var(--shadow-lg);
-            max-width: 100%;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--primary);
-            margin-bottom: 6px;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: var(--muted-foreground);
-            margin-bottom: 16px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .words-section {
-            margin-bottom: 16px;
-            padding: 12px;
-            background: var(--secondary);
-            border-radius: var(--radius-md);
-        }
-
-        .words-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--foreground);
-            font-size: 0.9rem;
-        }
-
-        .words-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-
-        .word-item {
-            padding: 8px 10px;
-            background: var(--card);
-            border-radius: var(--radius-sm);
-            border: 2px solid var(--primary);
-            transition: all 0.3s ease;
-            text-align: center;
-            font-weight: 500;
-            font-size: 0.8rem;
-            color: var(--card-foreground);
-        }
-
-        .word-item.found {
-            background: var(--accent);
-            color: var(--accent-foreground);
-            border-color: var(--accent);
-            text-decoration: line-through;
-            opacity: 0.7;
-        }
-
-        .grid-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .grid {
-            display: inline-grid;
-            grid-template-columns: repeat(15, 1fr);
-            gap: 1px;
-            background: var(--border);
-            padding: 1px;
-            border-radius: var(--radius-sm);
-            touch-action: none;
-        }
-
-        .cell {
-            width: 22px;
-            height: 22px;
-            background: var(--card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 11px;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.15s ease;
-            color: var(--foreground);
-            touch-action: none;
-        }
-
-        .cell.selected {
-            background: var(--primary);
-            color: var(--primary-foreground);
-            transform: scale(1.05);
-        }
-
-        .cell.found {
-            background: var(--accent);
-            color: var(--accent-foreground);
-        }
-
-        .score {
-            text-align: center;
-            font-size: 1rem;
-            margin-top: 16px;
-            color: var(--foreground);
-            font-weight: 500;
-        }
-
-        .score span {
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        .reset-btn {
-            display: block;
-            margin: 16px auto 0;
-            padding: 12px 28px;
-            background: var(--primary);
-            color: var(--primary-foreground);
-            border: none;
-            border-radius: calc(var(--radius) * 2);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-family: var(--font-sans);
-            box-shadow: var(--shadow-md);
-            width: 100%;
-            max-width: 200px;
-        }
-
-        .reset-btn:active {
-            transform: scale(0.98);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .congrats {
-            text-align: center;
-            font-size: 1.1rem;
-            color: var(--accent);
-            margin-top: 16px;
-            font-weight: 700;
-            display: none;
-            padding: 12px;
-            background: var(--secondary);
-            border-radius: var(--radius-md);
-        }
-
-        /* Tablet and larger screens */
-        @media (min-width: 640px) {
-            body {
-                padding: 20px;
-            }
-
-            .container {
-                padding: 24px;
-            }
-
-            h1 {
-                font-size: 2rem;
-                margin-bottom: 8px;
-            }
-
-            .subtitle {
-                font-size: 1.1rem;
-                margin-bottom: 20px;
-            }
-
-            .words-section {
-                margin-bottom: 24px;
-                padding: 16px;
-            }
-
-            .words-title {
-                font-size: 1.1rem;
-                margin-bottom: 12px;
-            }
-
-            .words-list {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
-
-            .word-item {
-                padding: 10px 14px;
-                font-size: 0.9rem;
-            }
-
-            .cell {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
-                gap: 2px;
-            }
-
-            .score {
-                font-size: 1.2rem;
-                margin-top: 20px;
-            }
-
-            .reset-btn {
-                margin: 20px auto 0;
-                padding: 14px 32px;
-                font-size: 1.1rem;
-                width: auto;
-            }
-
-            .congrats {
-                font-size: 1.3rem;
-                margin-top: 20px;
-                padding: 16px;
-            }
-        }
-
-        /* Desktop screens */
-        @media (min-width: 1024px) {
-            .container {
-                padding: 32px;
-                max-width: 900px;
-            }
-
-            h1 {
-                font-size: 2.5rem;
-                margin-bottom: 10px;
-            }
-
-            .words-section {
-                margin-bottom: 30px;
-                padding: 20px;
-            }
-
-            .words-list {
-                grid-template-columns: repeat(5, 1fr);
-            }
-
-            .word-item {
-                padding: 10px 16px;
-                font-size: 1rem;
-            }
-
-            .cell {
-                width: 38px;
-                height: 38px;
-                font-size: 16px;
-            }
-
-            .cell:hover {
-                background: var(--secondary);
-            }
-
-            .score {
-                font-size: 1.4rem;
-            }
-
-            .reset-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: var(--shadow-xl);
-            }
-
-            .congrats {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Metrics Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .tab-active { border-bottom-color: #4F46E5 !important; color: #4F46E5 !important; font-weight: 600; }
+    input::-webkit-inner-spin-button { opacity: 1; }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🏥 Wykreślanka</h1>
-        <div class="subtitle">Tematyka: Pielęgniarstwo</div>
+<body class="bg-slate-50 min-h-screen">
 
-        <div class="words-section">
-            <div class="words-title">Znajdź następujące słowa:</div>
-            <div class="words-list" id="wordsList"></div>
+<header class="bg-white border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+    <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-lg font-bold">H</div>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800 leading-tight">Health Metrics</h1>
+      <p class="text-xs text-slate-400">Twoje wyniki zdrowotne w jednym miejscu</p>
+    </div>
+  </div>
+</header>
+
+<div class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+  <div class="max-w-7xl mx-auto px-2 sm:px-6">
+    <nav class="flex overflow-x-auto" id="tabNav"></nav>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-3 sm:px-6 py-6" id="mainContent"></main>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const TABS = [
+  { id: 'dashboard',  label: 'Dashboard' },
+  { id: 'morfologia', label: 'Morfologia' },
+  { id: 'hormony',    label: 'Hormony' },
+  { id: 'dexa',       label: 'Skład ciała' },
+  { id: 'waga',       label: 'Waga' },
+  { id: 'kalorie',    label: 'Kalorie' },
+];
+
+const MORF_FIELDS = [
+  { key: 'wbc',    label: 'WBC',    unit: 'x10³/µL', min: 4.0,  max: 10.0  },
+  { key: 'rbc',    label: 'RBC',    unit: 'x10⁶/µL', min: 4.5,  max: 5.9   },
+  { key: 'hgb',    label: 'HGB',    unit: 'g/dL',    min: 14.0, max: 18.0  },
+  { key: 'hct',    label: 'HCT',    unit: '%',       min: 42,   max: 52    },
+  { key: 'mcv',    label: 'MCV',    unit: 'fL',      min: 80,   max: 100   },
+  { key: 'mch',    label: 'MCH',    unit: 'pg',      min: 27,   max: 33    },
+  { key: 'mchc',   label: 'MCHC',   unit: 'g/dL',    min: 31.5, max: 36.0  },
+  { key: 'plt',    label: 'PLT',    unit: 'x10³/µL', min: 150,  max: 400   },
+  { key: 'neutro', label: 'NEUTRO', unit: '%',       min: 40,   max: 75    },
+  { key: 'lympho', label: 'LYMPHO', unit: '%',       min: 20,   max: 45    },
+  { key: 'mono',   label: 'MONO',   unit: '%',       min: 2,    max: 10    },
+  { key: 'eosino', label: 'EOSINO', unit: '%',       min: 1,    max: 6     },
+  { key: 'baso',   label: 'BASO',   unit: '%',       min: 0,    max: 1     },
+];
+
+const HORM_FIELDS = [
+  { key: 'testosterone',     label: 'Testosteron całkowity', unit: 'nmol/L', min: 9.9,  max: 27.8  },
+  { key: 'freeTestosterone', label: 'Testosteron wolny',     unit: 'pmol/L', min: 174,  max: 729   },
+  { key: 'shbg',             label: 'SHBG',                  unit: 'nmol/L', min: 16.5, max: 55.9  },
+];
+
+const DEFAULT_STATE = {
+  morfologia: [],
+  hormony: [],
+  dexa: [{
+    id: '1716026400000',
+    date: '2026-05-18',
+    totalMass: 96.4,
+    fatMass: 22.906,
+    leanMass: 70.201,
+    fatPercent: 24.6,
+    bmc: 3.320,
+  }],
+  waga: [{ id: '1716026400001', date: '2026-05-18', weight: 96.4 }],
+  kalorie: { target: 2500, proteinG: 180, carbsG: 250, fatG: 80, entries: [] },
+};
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let state = (() => {
+  try { return JSON.parse(localStorage.getItem('hmt_state')) || DEFAULT_STATE; }
+  catch { return DEFAULT_STATE; }
+})();
+
+let activeTab = 'dashboard';
+let charts = {};
+
+function saveState() {
+  localStorage.setItem('hmt_state', JSON.stringify(state));
+}
+
+function uid() { return Date.now().toString() + Math.random().toString(36).slice(2, 6); }
+
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function fmt(d) {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  return `${day}.${m}.${y}`;
+}
+
+// ─────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────
+function renderTabs() {
+  document.getElementById('tabNav').innerHTML = TABS.map(t => `
+    <button onclick="switchTab('${t.id}')"
+      class="px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors
+             ${activeTab === t.id ? 'tab-active border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}">
+      ${t.label}
+    </button>`).join('');
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch {} });
+  charts = {};
+  renderTabs();
+  renderContent();
+}
+
+function renderContent() {
+  const el = document.getElementById('mainContent');
+  const map = { dashboard: renderDashboard, morfologia: renderMorfologia, hormony: renderHormony, dexa: renderDexa, waga: renderWaga, kalorie: renderKalorie };
+  el.innerHTML = (map[activeTab] || (() => ''))();
+  setTimeout(() => {
+    if (activeTab === 'dashboard')  { initDashChart(); }
+    if (activeTab === 'morfologia') { initMorfChart(); }
+    if (activeTab === 'hormony')    { initHormChart(); }
+    if (activeTab === 'dexa')       { initDexaChart(); }
+    if (activeTab === 'waga')       { initWagaChart(); }
+    if (activeTab === 'kalorie')    { initKalChart(); }
+  }, 0);
+}
+
+// ─────────────────────────────────────────────
+// CHART HELPERS
+// ─────────────────────────────────────────────
+function baseOpts(yUnit) {
+  return {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { usePointStyle: true, padding: 14, font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}${yUnit ? ' ' + yUnit : ''}` } },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+    },
+  };
+}
+
+function makeLine(id, labels, datasets, yUnit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  charts[id] = new Chart(el, { type: 'line', data: { labels, datasets }, options: baseOpts(yUnit) });
+}
+
+function card(title, value, sub, valClass) {
+  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+    <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">${title}</p>
+    <p class="text-2xl font-bold ${valClass}">${value}</p>
+    ${sub ? `<p class="text-xs text-slate-400 mt-1">${sub}</p>` : ''}
+  </div>`;
+}
+
+function formInput(name, label, type, step, placeholder, value) {
+  type = type || 'number';
+  step = step || '0.1';
+  placeholder = placeholder || '';
+  value = value || '';
+  return `<div>
+    <label class="text-xs font-medium text-slate-600">${label}</label>
+    <input type="${type}" name="${name}" step="${step}" placeholder="${placeholder}" value="${value}"
+      class="w-full mt-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+  </div>`;
+}
+
+function addBtn(label, color) {
+  color = color || 'indigo';
+  return `<button type="submit" class="w-full bg-${color}-600 hover:bg-${color}-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors">${label}</button>`;
+}
+
+function formCard(title, formId, children) {
+  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+    <h3 class="font-semibold text-slate-700 mb-4">${title}</h3>
+    <form id="${formId}" class="space-y-3">${children}</form>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
+function renderDashboard() {
+  const lastW = [...state.waga].sort((a,b) => a.date > b.date ? -1 : 1)[0];
+  const lastD = [...state.dexa].sort((a,b) => a.date > b.date ? -1 : 1)[0];
+  const lastH = [...state.hormony].sort((a,b) => a.date > b.date ? -1 : 1)[0];
+
+  return `
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      ${card('Waga', lastW ? lastW.weight + ' kg' : '—', lastW ? fmt(lastW.date) : 'brak danych', 'text-indigo-600')}
+      ${card('Tkanka tłuszczowa', lastD ? lastD.fatPercent + '%' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-orange-500')}
+      ${card('Masa tłuszczu', lastD ? lastD.fatMass.toFixed(2) + ' kg' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-red-500')}
+      ${card('Testosteron', lastH ? lastH.testosterone + ' nmol/L' : '—', lastH ? fmt(lastH.date) : 'brak danych', 'text-violet-600')}
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">Waga — historia</h3>
+        <canvas id="dash_waga" height="210"></canvas>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">DEXA — skład ciała</h3>
+        <canvas id="dash_dexa" height="210"></canvas>
+      </div>
+    </div>`;
+}
+
+function initDashChart() {
+  const ws = [...state.waga].sort((a,b) => a.date > b.date ? 1 : -1);
+  makeLine('dash_waga', ws.map(e => fmt(e.date)), [{
+    label: 'Waga (kg)', data: ws.map(e => e.weight),
+    borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.08)',
+    tension: 0.4, fill: true, pointRadius: 3,
+  }], 'kg');
+
+  const ds = [...state.dexa].sort((a,b) => a.date > b.date ? 1 : -1);
+  makeLine('dash_dexa', ds.map(e => fmt(e.date)), [
+    { label: '% tłuszczu', data: ds.map(e => e.fatPercent), borderColor: '#F97316', tension: 0.4, pointRadius: 4 },
+    { label: 'Masa tłuszczu (kg)', data: ds.map(e => e.fatMass), borderColor: '#EF4444', tension: 0.4, pointRadius: 4 },
+  ]);
+}
+
+// ─────────────────────────────────────────────
+// MORFOLOGIA
+// ─────────────────────────────────────────────
+function renderMorfologia() {
+  const sorted = [...state.morfologia].sort((a,b) => a.date > b.date ? -1 : 1);
+
+  const fields = MORF_FIELDS.map(f =>
+    formInput(f.key, f.label + ' <span class="text-slate-400 font-normal">(' + f.unit + ')</span>', 'number', '0.01', f.min + '–' + f.max)
+  ).join('');
+
+  const entries = sorted.length === 0
+    ? '<p class="text-slate-400 text-sm py-2">Brak wyników — dodaj pierwszy pomiar.</p>'
+    : sorted.map(morfEntry).join('');
+
+  const chartSection = sorted.length > 1 ? `
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+      <h3 class="font-semibold text-slate-700 mb-4">Trend HGB i WBC</h3>
+      <canvas id="morf_chart" height="180"></canvas>
+    </div>` : '';
+
+  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="space-y-4">
+      ${formCard('Dodaj wynik morfologii', 'morfologiaForm',
+        formInput('date', 'Data', 'date', '', '', today()) + fields + addBtn('Zapisz wynik')
+      )}
+    </div>
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">Wyniki morfologii</h3>
+        ${entries}
+      </div>
+      ${chartSection}
+    </div>
+  </div>`;
+}
+
+function morfEntry(entry) {
+  const cells = MORF_FIELDS.map(f => {
+    const v = entry[f.key];
+    if (v == null || v === '') return '';
+    const ok = v >= f.min && v <= f.max;
+    return `<div class="text-center p-2 rounded-lg ${ok ? 'bg-green-50' : 'bg-red-50'}">
+      <p class="text-xs text-slate-400">${f.label}</p>
+      <p class="font-bold text-sm ${ok ? 'text-green-700' : 'text-red-600'}">${v}</p>
+      <p class="text-xs text-slate-400">${f.unit}</p>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  return `<div class="border border-slate-100 rounded-xl p-4 mb-3">
+    <div class="flex justify-between items-center mb-3">
+      <span class="font-semibold text-slate-700">${fmt(entry.date)}</span>
+      <button onclick="del('morfologia','${entry.id}')" class="text-xs text-red-400 hover:text-red-600 transition-colors">Usuń</button>
+    </div>
+    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">${cells}</div>
+  </div>`;
+}
+
+function initMorfChart() {
+  const sorted = [...state.morfologia].sort((a,b) => a.date > b.date ? 1 : -1);
+  if (sorted.length < 2) return;
+  makeLine('morf_chart', sorted.map(e => fmt(e.date)), [
+    { label: 'HGB (g/dL)', data: sorted.map(e => e.hgb), borderColor: '#EF4444', tension: 0.4, pointRadius: 4 },
+    { label: 'WBC (x10³/µL)', data: sorted.map(e => e.wbc), borderColor: '#4F46E5', tension: 0.4, pointRadius: 4 },
+    { label: 'PLT ÷10 (x10³/µL)', data: sorted.map(e => e.plt ? +(e.plt/10).toFixed(1) : null), borderColor: '#10B981', tension: 0.4, pointRadius: 4 },
+  ]);
+}
+
+// ─────────────────────────────────────────────
+// HORMONY
+// ─────────────────────────────────────────────
+function renderHormony() {
+  const sorted = [...state.hormony].sort((a,b) => a.date > b.date ? -1 : 1);
+
+  const fields = HORM_FIELDS.map(f =>
+    formInput(f.key, f.label + ' <span class="text-slate-400 font-normal">(' + f.unit + ')</span>', 'number', '0.01', f.min + '–' + f.max)
+  ).join('');
+
+  const entries = sorted.length === 0
+    ? '<p class="text-slate-400 text-sm py-2">Brak wyników — dodaj pierwszy pomiar.</p>'
+    : sorted.map(hormEntry).join('');
+
+  const chartSection = sorted.length > 1 ? `
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+      <h3 class="font-semibold text-slate-700 mb-4">Trend hormonów</h3>
+      <canvas id="horm_chart" height="180"></canvas>
+    </div>` : '';
+
+  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div>
+      ${formCard('Dodaj wynik hormonów', 'hormonyForm',
+        formInput('date', 'Data', 'date', '', '', today()) + fields + addBtn('Zapisz wynik', 'violet')
+      )}
+    </div>
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">Historia hormonów</h3>
+        ${entries}
+      </div>
+      ${chartSection}
+    </div>
+  </div>`;
+}
+
+function hormEntry(entry) {
+  const cells = HORM_FIELDS.map(f => {
+    const v = entry[f.key];
+    if (v == null || v === '') return '';
+    const ok = v >= f.min && v <= f.max;
+    return `<div class="text-center p-4 rounded-xl ${ok ? 'bg-green-50' : 'bg-red-50'}">
+      <p class="text-xs text-slate-500 mb-1">${f.label}</p>
+      <p class="text-2xl font-bold ${ok ? 'text-green-700' : 'text-red-600'}">${v}</p>
+      <p class="text-xs text-slate-400 mt-1">${f.unit}</p>
+      <p class="text-xs mt-1 font-medium ${ok ? 'text-green-500' : 'text-red-500'}">${ok ? '✓ norma' : '⚠ poza normą'}</p>
+      <p class="text-xs text-slate-300 mt-0.5">${f.min}–${f.max}</p>
+    </div>`;
+  }).join('');
+
+  return `<div class="border border-slate-100 rounded-xl p-4 mb-3">
+    <div class="flex justify-between items-center mb-3">
+      <span class="font-semibold text-slate-700">${fmt(entry.date)}</span>
+      <button onclick="del('hormony','${entry.id}')" class="text-xs text-red-400 hover:text-red-600">Usuń</button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">${cells}</div>
+  </div>`;
+}
+
+function initHormChart() {
+  const sorted = [...state.hormony].sort((a,b) => a.date > b.date ? 1 : -1);
+  if (sorted.length < 2) return;
+  makeLine('horm_chart', sorted.map(e => fmt(e.date)), [
+    { label: 'Testosteron (nmol/L)', data: sorted.map(e => e.testosterone), borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.08)', tension: 0.4, fill: true, pointRadius: 5 },
+    { label: 'SHBG (nmol/L)', data: sorted.map(e => e.shbg), borderColor: '#0891B2', tension: 0.4, pointRadius: 5 },
+  ]);
+}
+
+// ─────────────────────────────────────────────
+// DEXA
+// ─────────────────────────────────────────────
+function renderDexa() {
+  const sorted = [...state.dexa].sort((a,b) => a.date > b.date ? -1 : 1);
+
+  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div>
+      ${formCard('Dodaj skan DEXA', 'dexaForm',
+        formInput('date', 'Data', 'date', '', '', today()) +
+        formInput('totalMass', 'Łączna masa (kg)', 'number', '0.1', 'np. 95.0') +
+        formInput('fatMass', 'Masa tkanki tłuszczowej (kg)', 'number', '0.001', 'np. 22.906') +
+        formInput('leanMass', 'Tkanka beztłuszczowa — miękka (kg)', 'number', '0.001', 'np. 70.201') +
+        formInput('fatPercent', '% tłuszczu', 'number', '0.1', 'np. 24.6') +
+        formInput('bmc', 'BMC — zawartość mineralna kości (kg)', 'number', '0.001', 'np. 3.320') +
+        addBtn('Zapisz skan', 'orange')
+      )}
+    </div>
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">Historia skanów DEXA</h3>
+        ${sorted.map(dexaEntry).join('')}
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">Trend składu ciała</h3>
+        <canvas id="dexa_chart" height="220"></canvas>
+      </div>
+    </div>
+  </div>`;
+}
+
+function dexaEntry(e) {
+  return `<div class="border border-slate-100 rounded-xl p-4 mb-3">
+    <div class="flex justify-between items-center mb-3">
+      <span class="font-semibold text-slate-700">${fmt(e.date)}</span>
+      <button onclick="del('dexa','${e.id}')" class="text-xs text-red-400 hover:text-red-600">Usuń</button>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+      <div class="p-3 bg-slate-50 rounded-xl">
+        <p class="text-xs text-slate-400">Łączna masa</p>
+        <p class="font-bold text-slate-800 text-lg">${e.totalMass != null ? e.totalMass : '—'}</p>
+        <p class="text-xs text-slate-400">kg</p>
+      </div>
+      <div class="p-3 bg-orange-50 rounded-xl">
+        <p class="text-xs text-slate-400">% tłuszczu</p>
+        <p class="font-bold text-orange-600 text-lg">${e.fatPercent != null ? e.fatPercent : '—'}</p>
+        <p class="text-xs text-slate-400">%</p>
+      </div>
+      <div class="p-3 bg-red-50 rounded-xl">
+        <p class="text-xs text-slate-400">Masa tłuszczu</p>
+        <p class="font-bold text-red-600 text-lg">${e.fatMass != null ? e.fatMass.toFixed(2) : '—'}</p>
+        <p class="text-xs text-slate-400">kg</p>
+      </div>
+      <div class="p-3 bg-green-50 rounded-xl">
+        <p class="text-xs text-slate-400">Tkanka beztłuszczowa</p>
+        <p class="font-bold text-green-700 text-lg">${e.leanMass != null ? e.leanMass.toFixed(2) : '—'}</p>
+        <p class="text-xs text-slate-400">kg</p>
+      </div>
+      <div class="p-3 bg-blue-50 rounded-xl">
+        <p class="text-xs text-slate-400">BMC</p>
+        <p class="font-bold text-blue-700 text-lg">${e.bmc != null ? e.bmc.toFixed(3) : '—'}</p>
+        <p class="text-xs text-slate-400">kg</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function initDexaChart() {
+  const sorted = [...state.dexa].sort((a,b) => a.date > b.date ? 1 : -1);
+  const el = document.getElementById('dexa_chart');
+  if (!el) return;
+  charts['dexa_chart'] = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(e => fmt(e.date)),
+      datasets: [
+        { label: 'Tkanka tłuszczowa (kg)', data: sorted.map(e => e.fatMass), backgroundColor: 'rgba(249,115,22,0.75)', stack: 'body' },
+        { label: 'Tkanka beztłuszczowa (kg)', data: sorted.map(e => e.leanMass), backgroundColor: 'rgba(34,197,94,0.75)', stack: 'body' },
+        { label: 'BMC (kg)', data: sorted.map(e => e.bmc), backgroundColor: 'rgba(59,130,246,0.75)', stack: 'body' },
+      ],
+    },
+    options: {
+      ...baseOpts('kg'),
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { stacked: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+}
+
+// ─────────────────────────────────────────────
+// WAGA
+// ─────────────────────────────────────────────
+function renderWaga() {
+  const sorted = [...state.waga].sort((a,b) => a.date > b.date ? -1 : 1);
+  const rows = sorted.map(e => `
+    <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+      <span class="text-sm text-slate-600">${fmt(e.date)}</span>
+      <span class="font-bold text-indigo-600">${e.weight} kg</span>
+      <button onclick="del('waga','${e.id}')" class="text-xs text-red-400 hover:text-red-600 w-5">✕</button>
+    </div>`).join('');
+
+  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="space-y-4">
+      ${formCard('Dodaj pomiar wagi', 'wagaForm',
+        formInput('date', 'Data', 'date', '', '', today()) +
+        formInput('weight', 'Waga (kg)', 'number', '0.1', 'np. 95.3') +
+        addBtn('Zapisz pomiar')
+      )}
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-3">Historia pomiarów</h3>
+        <div class="max-h-72 overflow-y-auto pr-1">${rows || '<p class="text-slate-400 text-sm">Brak pomiarów.</p>'}</div>
+      </div>
+    </div>
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">Trend wagi</h3>
+        <canvas id="waga_chart" height="280"></canvas>
+      </div>
+    </div>
+  </div>`;
+}
+
+function initWagaChart() {
+  const sorted = [...state.waga].sort((a,b) => a.date > b.date ? 1 : -1);
+  makeLine('waga_chart', sorted.map(e => fmt(e.date)), [{
+    label: 'Waga (kg)',
+    data: sorted.map(e => e.weight),
+    borderColor: '#4F46E5',
+    backgroundColor: 'rgba(79,70,229,0.07)',
+    tension: 0.4,
+    fill: true,
+    pointRadius: 4,
+    pointHoverRadius: 6,
+    pointBackgroundColor: '#4F46E5',
+  }], 'kg');
+}
+
+// ─────────────────────────────────────────────
+// KALORIE
+// ─────────────────────────────────────────────
+function renderKalorie() {
+  const { target, proteinG, carbsG, fatG, entries } = state.kalorie;
+  const pCal = proteinG * 4, cCal = carbsG * 4, fCal = fatG * 9;
+  const tot = (pCal + cCal + fCal) || 1;
+
+  function macroBar(label, g, cal, barColor, textColor) {
+    return `<div>
+      <div class="flex justify-between text-xs mb-1">
+        <span class="${textColor} font-medium">${label}</span>
+        <span class="text-slate-500">${g}g = ${cal} kcal</span>
+      </div>
+      <div class="w-full bg-slate-100 rounded-full h-2">
+        <div class="${barColor} h-2 rounded-full" style="width:${Math.round(cal/tot*100)}%"></div>
+      </div>
+    </div>`;
+  }
+
+  const recentEntries = [...entries].sort((a,b) => a.date > b.date ? -1 : 1);
+
+  const entryRows = recentEntries.map(e => {
+    const diff = (e.calories || 0) - target;
+    const cls = Math.abs(diff) <= 150 ? 'text-green-600' : diff > 0 ? 'text-red-500' : 'text-blue-500';
+    return `<div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 gap-2">
+      <span class="text-sm text-slate-600 w-20 shrink-0">${fmt(e.date)}</span>
+      <span class="font-bold ${cls}">${e.calories} kcal</span>
+      <span class="text-xs ${cls} shrink-0">${diff >= 0 ? '+' : ''}${diff}</span>
+      <div class="text-xs text-slate-400 hidden sm:block">${e.protein != null ? e.protein : '—'}g B · ${e.carbs != null ? e.carbs : '—'}g W · ${e.fat != null ? e.fat : '—'}g T</div>
+      <button onclick="del('kalorie_entry','${e.id}')" class="text-xs text-red-400 hover:text-red-600 shrink-0">✕</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="space-y-4">
+      ${formCard('Cel dzienny', 'targetForm',
+        formInput('target', 'Kalorie (kcal)', 'number', '1', '', target) +
+        formInput('proteinG', 'Białko (g)', 'number', '1', '', proteinG) +
+        formInput('carbsG', 'Węglowodany (g)', 'number', '1', '', carbsG) +
+        formInput('fatG', 'Tłuszcze (g)', 'number', '1', '', fatG) +
+        addBtn('Zapisz cel', 'slate')
+      )}
+
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-3">Makroskładniki</h3>
+        <div class="space-y-3">
+          ${macroBar('Białko', proteinG, pCal, 'bg-red-400', 'text-red-600')}
+          ${macroBar('Węglowodany', carbsG, cCal, 'bg-yellow-400', 'text-yellow-600')}
+          ${macroBar('Tłuszcze', fatG, fCal, 'bg-blue-400', 'text-blue-600')}
+          <div class="flex justify-between pt-2 border-t border-slate-100 text-sm">
+            <span class="font-medium text-slate-600">Razem</span>
+            <span class="font-bold text-indigo-600">${tot} kcal</span>
+          </div>
         </div>
+      </div>
 
-        <div class="grid-container">
-            <div class="grid" id="grid"></div>
-        </div>
-
-        <div class="score">
-            Znalezione słowa: <span id="score">0</span> / <span id="total">10</span>
-        </div>
-
-        <div class="congrats" id="congrats">🎉 Gratulacje! Znalazłeś wszystkie słowa! 🎉</div>
-
-        <button class="reset-btn" onclick="resetGame()">Nowa gra</button>
+      ${formCard('Zapisz dzień', 'kalorieEntryForm',
+        formInput('date', 'Data', 'date', '', '', today()) +
+        formInput('calories', 'Kalorie (kcal)', 'number', '1', target.toString()) +
+        formInput('protein', 'Białko (g)', 'number', '1', proteinG.toString()) +
+        formInput('carbs', 'Węglowodany (g)', 'number', '1', carbsG.toString()) +
+        formInput('fat', 'Tłuszcze (g)', 'number', '1', fatG.toString()) +
+        addBtn('Zapisz dzień', 'green')
+      )}
     </div>
 
-    <script>
-        const GRID_SIZE = 15;
-        const WORDS = [
-            'PIELĘGNIARKA',
-            'ZASTRZYK',
-            'SZPITAL',
-            'LEKARZ',
-            'PACJENT'
-        ];
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-4">Spożycie kalorii — historia</h3>
+        <canvas id="kal_chart" height="220"></canvas>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-700 mb-3">Dziennik</h3>
+        ${entryRows || '<p class="text-slate-400 text-sm">Brak wpisów.</p>'}
+      </div>
+    </div>
+  </div>`;
+}
 
-        let grid = [];
-        let wordPositions = {};
-        let selectedCells = [];
-        let foundWords = new Set();
-        let isSelecting = false;
+function initKalChart() {
+  const entries = [...state.kalorie.entries].sort((a,b) => a.date > b.date ? 1 : -1).slice(-60);
+  const target = state.kalorie.target;
+  const el = document.getElementById('kal_chart');
+  if (!el) return;
+  charts['kal_chart'] = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: entries.map(e => fmt(e.date)),
+      datasets: [
+        {
+          label: 'Kalorie (kcal)',
+          data: entries.map(e => e.calories),
+          backgroundColor: entries.map(e => {
+            const diff = (e.calories || 0) - target;
+            if (Math.abs(diff) <= 150) return 'rgba(34,197,94,0.7)';
+            return diff > 0 ? 'rgba(239,68,68,0.7)' : 'rgba(59,130,246,0.7)';
+          }),
+          borderRadius: 6,
+        },
+        {
+          label: 'Cel (' + target + ' kcal)',
+          data: entries.map(() => target),
+          type: 'line',
+          borderColor: '#94A3B8',
+          borderDash: [5, 5],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false,
+        },
+      ],
+    },
+    options: baseOpts('kcal'),
+  });
+}
 
-        // Kierunki: prawo, dół, prawo-dół, prawo-góra
-        const DIRECTIONS = [
-            { dx: 1, dy: 0 },   // poziomo prawo
-            { dx: 0, dy: 1 },   // pionowo dół
-            { dx: 1, dy: 1 },   // ukośnie prawo-dół
-            { dx: 1, dy: -1 }   // ukośnie prawo-góra
-        ];
+// ─────────────────────────────────────────────
+// FORM SUBMISSION
+// ─────────────────────────────────────────────
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const fd = Object.fromEntries(new FormData(e.target));
 
-        function initializeGrid() {
-            grid = Array(GRID_SIZE).fill(null).map(() =>
-                Array(GRID_SIZE).fill('')
-            );
-            wordPositions = {};
-            foundWords = new Set();
-        }
+  switch (e.target.id) {
+    case 'morfologiaForm': {
+      const entry = { id: uid(), date: fd.date };
+      MORF_FIELDS.forEach(f => { if (fd[f.key] !== '') entry[f.key] = parseFloat(fd[f.key]); });
+      state.morfologia.push(entry);
+      saveState(); switchTab('morfologia');
+      break;
+    }
+    case 'hormonyForm': {
+      const entry = { id: uid(), date: fd.date };
+      HORM_FIELDS.forEach(f => { if (fd[f.key] !== '') entry[f.key] = parseFloat(fd[f.key]); });
+      state.hormony.push(entry);
+      saveState(); switchTab('hormony');
+      break;
+    }
+    case 'dexaForm': {
+      state.dexa.push({
+        id: uid(), date: fd.date,
+        totalMass:  parseFloat(fd.totalMass),
+        fatMass:    parseFloat(fd.fatMass),
+        leanMass:   parseFloat(fd.leanMass),
+        fatPercent: parseFloat(fd.fatPercent),
+        bmc:        parseFloat(fd.bmc),
+      });
+      saveState(); switchTab('dexa');
+      break;
+    }
+    case 'wagaForm': {
+      state.waga.push({ id: uid(), date: fd.date, weight: parseFloat(fd.weight) });
+      saveState(); switchTab('waga');
+      break;
+    }
+    case 'targetForm': {
+      Object.assign(state.kalorie, {
+        target:   parseInt(fd.target),
+        proteinG: parseInt(fd.proteinG),
+        carbsG:   parseInt(fd.carbsG),
+        fatG:     parseInt(fd.fatG),
+      });
+      saveState(); switchTab('kalorie');
+      break;
+    }
+    case 'kalorieEntryForm': {
+      state.kalorie.entries.push({
+        id: uid(), date: fd.date,
+        calories: parseInt(fd.calories),
+        protein:  parseFloat(fd.protein),
+        carbs:    parseFloat(fd.carbs),
+        fat:      parseFloat(fd.fat),
+      });
+      saveState(); switchTab('kalorie');
+      break;
+    }
+  }
+});
 
-        function canPlaceWord(word, x, y, direction) {
-            const len = word.length;
+// ─────────────────────────────────────────────
+// DELETE
+// ─────────────────────────────────────────────
+function del(type, id) {
+  if (type === 'kalorie_entry') {
+    state.kalorie.entries = state.kalorie.entries.filter(e => e.id !== id);
+  } else {
+    state[type] = state[type].filter(e => e.id !== id);
+  }
+  saveState();
+  renderContent();
+}
 
-            for (let i = 0; i < len; i++) {
-                const newX = x + direction.dx * i;
-                const newY = y + direction.dy * i;
-
-                if (newX < 0 || newX >= GRID_SIZE || newY < 0 || newY >= GRID_SIZE) {
-                    return false;
-                }
-
-                const cell = grid[newY][newX];
-                if (cell !== '' && cell !== word[i]) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        function placeWord(word, x, y, direction) {
-            const positions = [];
-
-            for (let i = 0; i < word.length; i++) {
-                const newX = x + direction.dx * i;
-                const newY = y + direction.dy * i;
-                grid[newY][newX] = word[i];
-                positions.push({ x: newX, y: newY });
-            }
-
-            wordPositions[word] = positions;
-        }
-
-        function placeWords() {
-            const shuffledWords = [...WORDS].sort(() => Math.random() - 0.5);
-
-            for (const word of shuffledWords) {
-                let placed = false;
-                let attempts = 0;
-                const maxAttempts = 100;
-
-                while (!placed && attempts < maxAttempts) {
-                    const x = Math.floor(Math.random() * GRID_SIZE);
-                    const y = Math.floor(Math.random() * GRID_SIZE);
-                    const direction = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
-
-                    if (canPlaceWord(word, x, y, direction)) {
-                        placeWord(word, x, y, direction);
-                        placed = true;
-                    }
-
-                    attempts++;
-                }
-
-                if (!placed) {
-                    console.warn(`Nie udało się umieścić słowa: ${word}`);
-                }
-            }
-        }
-
-        function fillEmptyCells() {
-            const polishLetters = 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ';
-
-            for (let y = 0; y < GRID_SIZE; y++) {
-                for (let x = 0; x < GRID_SIZE; x++) {
-                    if (grid[y][x] === '') {
-                        grid[y][x] = polishLetters[Math.floor(Math.random() * polishLetters.length)];
-                    }
-                }
-            }
-        }
-
-        function getCellFromPoint(x, y) {
-            const element = document.elementFromPoint(x, y);
-            if (element && element.classList.contains('cell')) {
-                return element;
-            }
-            return null;
-        }
-
-        function renderGrid() {
-            const gridElement = document.getElementById('grid');
-            gridElement.innerHTML = '';
-
-            for (let y = 0; y < GRID_SIZE; y++) {
-                for (let x = 0; x < GRID_SIZE; x++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.textContent = grid[y][x];
-                    cell.dataset.x = x;
-                    cell.dataset.y = y;
-
-                    // Mouse events (for desktop)
-                    cell.addEventListener('mousedown', handleCellMouseDown);
-                    cell.addEventListener('mouseenter', handleCellMouseEnter);
-                    cell.addEventListener('mouseup', handleCellMouseUp);
-
-                    // Touch events (for mobile)
-                    cell.addEventListener('touchstart', handleCellTouchStart, { passive: false });
-                    cell.addEventListener('touchmove', handleCellTouchMove, { passive: false });
-                    cell.addEventListener('touchend', handleCellTouchEnd, { passive: false });
-
-                    gridElement.appendChild(cell);
-                }
-            }
-        }
-
-        function renderWordsList() {
-            const wordsListElement = document.getElementById('wordsList');
-            wordsListElement.innerHTML = '';
-
-            WORDS.forEach(word => {
-                const wordItem = document.createElement('div');
-                wordItem.className = 'word-item';
-                wordItem.textContent = word;
-                wordItem.id = `word-${word}`;
-                wordsListElement.appendChild(wordItem);
-            });
-        }
-
-        // Mouse event handlers (desktop)
-        function handleCellMouseDown(e) {
-            e.preventDefault();
-            startSelection(e.target);
-        }
-
-        function handleCellMouseEnter(e) {
-            if (!isSelecting) return;
-            continueSelection(e.target);
-        }
-
-        function handleCellMouseUp(e) {
-            if (isSelecting) {
-                endSelection();
-            }
-        }
-
-        // Touch event handlers (mobile)
-        function handleCellTouchStart(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const element = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (element && element.classList.contains('cell')) {
-                startSelection(element);
-            }
-        }
-
-        function handleCellTouchMove(e) {
-            e.preventDefault();
-            if (!isSelecting) return;
-
-            const touch = e.touches[0];
-            const element = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (element && element.classList.contains('cell')) {
-                continueSelection(element);
-            }
-        }
-
-        function handleCellTouchEnd(e) {
-            e.preventDefault();
-            if (isSelecting) {
-                endSelection();
-            }
-        }
-
-        function startSelection(cellElement) {
-            isSelecting = true;
-            selectedCells = [];
-            clearSelection();
-
-            const x = parseInt(cellElement.dataset.x);
-            const y = parseInt(cellElement.dataset.y);
-            selectedCells.push({ x, y });
-            cellElement.classList.add('selected');
-        }
-
-        function continueSelection(cellElement) {
-            if (!cellElement) return;
-
-            const x = parseInt(cellElement.dataset.x);
-            const y = parseInt(cellElement.dataset.y);
-
-            // Sprawdź czy komórka jest w linii prostej z poprzednimi
-            if (selectedCells.length > 0) {
-                const lastCell = selectedCells[selectedCells.length - 1];
-                const isInLine = checkIfInLine(selectedCells[0], lastCell, { x, y });
-
-                if (isInLine && !selectedCells.some(cell => cell.x === x && cell.y === y)) {
-                    selectedCells.push({ x, y });
-                    cellElement.classList.add('selected');
-                }
-            }
-        }
-
-        function endSelection() {
-            isSelecting = false;
-            checkSelectedWord();
-        }
-
-        function checkIfInLine(start, current, next) {
-            if (selectedCells.length === 1) return true;
-
-            const dx1 = current.x - start.x;
-            const dy1 = current.y - start.y;
-            const dx2 = next.x - current.x;
-            const dy2 = next.y - current.y;
-
-            // Normalizuj kierunki
-            const normalize = (val) => val === 0 ? 0 : val / Math.abs(val);
-
-            const ndx1 = normalize(dx1);
-            const ndy1 = normalize(dy1);
-            const ndx2 = normalize(dx2);
-            const ndy2 = normalize(dy2);
-
-            return ndx1 === ndx2 && ndy1 === ndy2;
-        }
-
-        function clearSelection() {
-            document.querySelectorAll('.cell.selected').forEach(cell => {
-                if (!cell.classList.contains('found')) {
-                    cell.classList.remove('selected');
-                }
-            });
-        }
-
-        function checkSelectedWord() {
-            if (selectedCells.length === 0) return;
-
-            const selectedWord = selectedCells.map(cell => grid[cell.y][cell.x]).join('');
-            const reversedWord = selectedWord.split('').reverse().join('');
-
-            let matchedWord = null;
-            if (WORDS.includes(selectedWord) && !foundWords.has(selectedWord)) {
-                matchedWord = selectedWord;
-            } else if (WORDS.includes(reversedWord) && !foundWords.has(reversedWord)) {
-                matchedWord = reversedWord;
-            }
-
-            if (matchedWord) {
-                foundWords.add(matchedWord);
-                markWordAsFound(matchedWord);
-                updateScore();
-
-                // Oznacz komórki jako znalezione
-                selectedCells.forEach(cell => {
-                    const cellElement = document.querySelector(
-                        `.cell[data-x="${cell.x}"][data-y="${cell.y}"]`
-                    );
-                    cellElement.classList.remove('selected');
-                    cellElement.classList.add('found');
-                });
-
-                if (foundWords.size === WORDS.length) {
-                    document.getElementById('congrats').style.display = 'block';
-                }
-            } else {
-                clearSelection();
-            }
-
-            selectedCells = [];
-        }
-
-        function markWordAsFound(word) {
-            const wordElement = document.getElementById(`word-${word}`);
-            if (wordElement) {
-                wordElement.classList.add('found');
-            }
-        }
-
-        function updateScore() {
-            document.getElementById('score').textContent = foundWords.size;
-        }
-
-        function resetGame() {
-            initializeGrid();
-            placeWords();
-            fillEmptyCells();
-            renderGrid();
-            renderWordsList();
-            updateScore();
-            document.getElementById('congrats').style.display = 'none';
-        }
-
-        // Inicjalizacja gry
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('total').textContent = WORDS.length;
-            resetGame();
-        });
-
-        // Zapobiegaj zaznaczaniu tekstu podczas przeciągania
-        document.addEventListener('selectstart', (e) => {
-            if (isSelecting) e.preventDefault();
-        });
-
-        // Zapobiegaj domyślnym akcjom touch na całym dokumencie podczas gry
-        document.addEventListener('touchmove', (e) => {
-            if (isSelecting) e.preventDefault();
-        }, { passive: false });
-    </script>
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderTabs();
+renderContent();
+</script>
 </body>
 </html>
