@@ -94,27 +94,21 @@ const TABS = [
 ];
 
 const MORF_FIELDS = [
-  { key: 'wbc',    label: 'WBC',    unit: 'tys/µL', min: 4.0,  max: 10.0 },
-  { key: 'rbc',    label: 'RBC',    unit: 'mln/µL', min: 4.6,  max: 6.5  },
-  { key: 'hgb',    label: 'HGB',    unit: 'g/dL',   min: 13.5, max: 18.0 },
-  { key: 'hct',    label: 'HCT',    unit: '%',      min: 40.0, max: 52.0 },
-  { key: 'mcv',    label: 'MCV',    unit: 'fL',     min: 80,   max: 98   },
-  { key: 'mch',    label: 'MCH',    unit: 'pg',     min: 27,   max: 32   },
-  { key: 'mchc',   label: 'MCHC',   unit: 'g/dL',   min: 31.0, max: 37.0 },
-  { key: 'plt',    label: 'PLT',    unit: 'tys/µL', min: 150,  max: 400  },
-  { key: 'neutro', label: 'NEUTRO', unit: '%',      min: 40,   max: 75   },
-  { key: 'lympho', label: 'LYMPHO', unit: '%',      min: 20,   max: 45   },
-  { key: 'mono',   label: 'MONO',   unit: '%',      min: 2,    max: 10   },
-  { key: 'eosino', label: 'EOSINO', unit: '%',      min: 1,    max: 6    },
-  { key: 'baso',   label: 'BASO',   unit: '%',      min: 0,    max: 1    },
+  { key: 'wbc',  label: 'WBC (Leukocyty)',   unit: 'tys/µL', min: 4.0,  max: 10.0 },
+  { key: 'rbc',  label: 'RBC (Erytrocyty)',  unit: 'mln/µL', min: 4.6,  max: 6.5  },
+  { key: 'hgb',  label: 'HGB (Hemoglobina)', unit: 'g/dL',   min: 13.5, max: 18.0 },
+  { key: 'hct',  label: 'HCT (Hematokryt)',  unit: '%',      min: 40.0, max: 52.0 },
+  { key: 'mcv',  label: 'MCV',               unit: 'fL',     min: 80,   max: 98   },
+  { key: 'mch',  label: 'MCH',               unit: 'pg',     min: 27,   max: 32   },
+  { key: 'mchc', label: 'MCHC',              unit: 'g/dL',   min: 31.0, max: 37.0 },
+  { key: 'plt',  label: 'PLT (Płytki krwi)', unit: 'tys/µL', min: 150,  max: 400  },
 ];
 
 const HORM_FIELDS = [
-  { key: 'testosterone',     label: 'Testosteron całkowity', unit: 'ng/dL',  min: 249,  max: 836  },
-  { key: 'freeTestosterone', label: 'Testosteron wolny',     unit: 'pmol/L', min: 174,  max: 729  },
-  { key: 'shbg',             label: 'SHBG',                  unit: 'nmol/L', min: 18.3, max: 54.1 },
-  { key: 'ft3',              label: 'FT3',                   unit: 'pg/ml',  min: 2.0,  max: 4.4  },
-  { key: 'estradiol',        label: 'Estradiol',             unit: 'pg/ml',  min: 11.3, max: 43.2 },
+  { key: 'testosterone', label: 'Testosteron całkowity', unit: 'ng/dL',  min: 249,  max: 836  },
+  { key: 'shbg',         label: 'SHBG',                  unit: 'nmol/L', min: 18.3, max: 54.1 },
+  { key: 'ft3',          label: 'FT3',                   unit: 'pg/ml',  min: 2.0,  max: 4.4  },
+  { key: 'estradiol',    label: 'Estradiol',             unit: 'pg/ml',  min: 11.3, max: 43.2 },
 ];
 
 const BIO_FIELDS = [
