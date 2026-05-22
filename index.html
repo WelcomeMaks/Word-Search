@@ -12,12 +12,10 @@
     input[type=number] { -moz-appearance: textfield; }
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-<!-- Header -->
 <header class="bg-white border-b border-slate-200">
   <div class="px-4 py-3 flex items-center gap-3">
     <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">H</div>
@@ -28,9 +26,8 @@
   </div>
 </header>
 
-<!-- Tab bar — sticky, scrollable -->
 <div class="bg-white border-b border-slate-200 sticky top-0 z-20">
-  <nav class="flex overflow-x-auto scrollbar-none" id="tabNav" style="scrollbar-width:none;-webkit-overflow-scrolling:touch;"></nav>
+  <nav class="flex overflow-x-auto" id="tabNav" style="scrollbar-width:none;-webkit-overflow-scrolling:touch;"></nav>
 </div>
 
 <main class="px-3 py-4 pb-8 max-w-2xl mx-auto" id="mainContent"></main>
@@ -43,46 +40,78 @@ const TABS = [
   { id: 'dashboard',  label: 'Dashboard' },
   { id: 'morfologia', label: 'Morfologia' },
   { id: 'hormony',    label: 'Hormony' },
+  { id: 'biochemia',  label: 'Biochemia' },
   { id: 'dexa',       label: 'Skład ciała' },
   { id: 'waga',       label: 'Waga' },
   { id: 'kalorie',    label: 'Kalorie' },
 ];
 
 const MORF_FIELDS = [
-  { key: 'wbc',    label: 'WBC',    unit: 'x10³/µL', min: 4.0,  max: 10.0  },
-  { key: 'rbc',    label: 'RBC',    unit: 'x10⁶/µL', min: 4.5,  max: 5.9   },
-  { key: 'hgb',    label: 'HGB',    unit: 'g/dL',    min: 14.0, max: 18.0  },
-  { key: 'hct',    label: 'HCT',    unit: '%',       min: 42,   max: 52    },
-  { key: 'mcv',    label: 'MCV',    unit: 'fL',      min: 80,   max: 100   },
-  { key: 'mch',    label: 'MCH',    unit: 'pg',      min: 27,   max: 33    },
-  { key: 'mchc',   label: 'MCHC',   unit: 'g/dL',    min: 31.5, max: 36.0  },
-  { key: 'plt',    label: 'PLT',    unit: 'x10³/µL', min: 150,  max: 400   },
-  { key: 'neutro', label: 'NEUTRO', unit: '%',       min: 40,   max: 75    },
-  { key: 'lympho', label: 'LYMPHO', unit: '%',       min: 20,   max: 45    },
-  { key: 'mono',   label: 'MONO',   unit: '%',       min: 2,    max: 10    },
-  { key: 'eosino', label: 'EOSINO', unit: '%',       min: 1,    max: 6     },
-  { key: 'baso',   label: 'BASO',   unit: '%',       min: 0,    max: 1     },
+  { key: 'wbc',    label: 'WBC',    unit: 'tys/µL', min: 4.0,  max: 10.0 },
+  { key: 'rbc',    label: 'RBC',    unit: 'mln/µL', min: 4.6,  max: 6.5  },
+  { key: 'hgb',    label: 'HGB',    unit: 'g/dL',   min: 13.5, max: 18.0 },
+  { key: 'hct',    label: 'HCT',    unit: '%',      min: 40.0, max: 52.0 },
+  { key: 'mcv',    label: 'MCV',    unit: 'fL',     min: 80,   max: 98   },
+  { key: 'mch',    label: 'MCH',    unit: 'pg',     min: 27,   max: 32   },
+  { key: 'mchc',   label: 'MCHC',   unit: 'g/dL',   min: 31.0, max: 37.0 },
+  { key: 'plt',    label: 'PLT',    unit: 'tys/µL', min: 150,  max: 400  },
+  { key: 'neutro', label: 'NEUTRO', unit: '%',      min: 40,   max: 75   },
+  { key: 'lympho', label: 'LYMPHO', unit: '%',      min: 20,   max: 45   },
+  { key: 'mono',   label: 'MONO',   unit: '%',      min: 2,    max: 10   },
+  { key: 'eosino', label: 'EOSINO', unit: '%',      min: 1,    max: 6    },
+  { key: 'baso',   label: 'BASO',   unit: '%',      min: 0,    max: 1    },
 ];
 
 const HORM_FIELDS = [
-  { key: 'testosterone',     label: 'Testosteron całkowity', unit: 'nmol/L', min: 9.9,  max: 27.8 },
+  { key: 'testosterone',     label: 'Testosteron całkowity', unit: 'ng/dL',  min: 249,  max: 836  },
   { key: 'freeTestosterone', label: 'Testosteron wolny',     unit: 'pmol/L', min: 174,  max: 729  },
-  { key: 'shbg',             label: 'SHBG',                  unit: 'nmol/L', min: 16.5, max: 55.9 },
+  { key: 'shbg',             label: 'SHBG',                  unit: 'nmol/L', min: 18.3, max: 54.1 },
+  { key: 'ft3',              label: 'FT3',                   unit: 'pg/ml',  min: 2.0,  max: 4.4  },
+  { key: 'estradiol',        label: 'Estradiol',             unit: 'pg/ml',  min: 11.3, max: 43.2 },
 ];
 
+const BIO_FIELDS = [
+  { key: 'glukoza',    label: 'Glukoza',              unit: 'mg/dL',   min: 70,   max: 99   },
+  { key: 'cholTotal',  label: 'Cholesterol całkowity', unit: 'mg/dL',   min: 0,    max: 190  },
+  { key: 'cholHDL',    label: 'Cholesterol HDL',       unit: 'mg/dL',   min: 40,   max: 999  },
+  { key: 'cholLDL',    label: 'Cholesterol LDL',       unit: 'mg/dL',   min: 0,    max: 115  },
+  { key: 'trigl',      label: 'Triglicerydy',          unit: 'mg/dL',   min: 0,    max: 100  },
+  { key: 'alt',        label: 'ALT',                   unit: 'U/l',     min: 0,    max: 50   },
+  { key: 'ast',        label: 'AST',                   unit: 'U/l',     min: 0,    max: 50   },
+  { key: 'biliTotal',  label: 'Bilirubina całkowita',  unit: 'mg/dL',   min: 0,    max: 1.2  },
+  { key: 'kreatynina', label: 'Kreatynina',            unit: 'mg/dL',   min: 0.67, max: 1.17 },
+  { key: 'tsh',        label: 'TSH',                   unit: 'µIU/ml',  min: 0.27, max: 4.2  },
+  { key: 'kwasM',      label: 'Kwas moczowy',          unit: 'mg/dL',   min: 3.4,  max: 7.0  },
+];
+
+// ─────────────────────────────────────────────
+// DEFAULT STATE — pre-filled with lab results 2026-05-14
+// ─────────────────────────────────────────────
 const DEFAULT_STATE = {
-  morfologia: [],
-  hormony: [],
-  dexa: [{
-    id: '1716026400000',
-    date: '2026-05-18',
-    totalMass: 96.4,
-    fatMass: 22.906,
-    leanMass: 70.201,
-    fatPercent: 24.6,
-    bmc: 3.320,
+  morfologia: [{
+    id: 'morf_20260514',
+    date: '2026-05-14',
+    wbc: 5.80, rbc: 5.58, hgb: 16.1, hct: 46.3,
+    mcv: 83.0, mch: 28.9, mchc: 34.8, plt: 251,
   }],
-  waga: [{ id: '1716026400001', date: '2026-05-18', weight: 96.4 }],
+  hormony: [{
+    id: 'horm_20260514',
+    date: '2026-05-14',
+    testosterone: 669, shbg: 47, ft3: 3.40, estradiol: 25.30,
+  }],
+  biochemia: [{
+    id: 'bio_20260514',
+    date: '2026-05-14',
+    glukoza: 89.80, cholTotal: 178, cholHDL: 47.30, cholLDL: 116,
+    trigl: 78, alt: 62, ast: 28, biliTotal: 1.34,
+    kreatynina: 1.17, tsh: 3.360, kwasM: 4.5,
+  }],
+  dexa: [{
+    id: 'dexa_20260518',
+    date: '2026-05-18',
+    totalMass: 96.4, fatMass: 22.906, leanMass: 70.201, fatPercent: 24.6, bmc: 3.320,
+  }],
+  waga: [{ id: 'waga_20260518', date: '2026-05-18', weight: 96.4 }],
   kalorie: { target: 2500, proteinG: 180, carbsG: 250, fatG: 80, entries: [] },
 };
 
@@ -90,14 +119,14 @@ const DEFAULT_STATE = {
 // STATE
 // ─────────────────────────────────────────────
 let state = (() => {
-  try { return JSON.parse(localStorage.getItem('hmt_v2')) || DEFAULT_STATE; }
+  try { return JSON.parse(localStorage.getItem('hmt_v3')) || DEFAULT_STATE; }
   catch { return DEFAULT_STATE; }
 })();
 
 let activeTab = 'dashboard';
 let charts = {};
 
-function saveState() { localStorage.setItem('hmt_v2', JSON.stringify(state)); }
+function saveState() { localStorage.setItem('hmt_v3', JSON.stringify(state)); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
 function today() { return new Date().toISOString().split('T')[0]; }
 function fmt(d) {
@@ -112,14 +141,13 @@ function fmt(d) {
 function renderTabs() {
   document.getElementById('tabNav').innerHTML = TABS.map(t => `
     <button onclick="switchTab('${t.id}')"
-      class="px-4 py-3.5 text-sm whitespace-nowrap border-b-2 transition-colors min-w-fit
+      class="px-4 py-3.5 text-sm whitespace-nowrap border-b-2 transition-colors
              ${activeTab === t.id ? 'tab-active border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'}">
       ${t.label}
     </button>`).join('');
-  // scroll active tab into view
   setTimeout(() => {
-    const active = document.querySelector('.tab-active');
-    if (active) active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    const a = document.querySelector('.tab-active');
+    if (a) a.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }, 50);
 }
 
@@ -133,10 +161,14 @@ function switchTab(tab) {
 }
 
 function renderContent() {
-  const map = { dashboard: renderDashboard, morfologia: renderMorfologia, hormony: renderHormony, dexa: renderDexa, waga: renderWaga, kalorie: renderKalorie };
+  const map = {
+    dashboard: renderDashboard, morfologia: renderMorfologia, hormony: renderHormony,
+    biochemia: renderBiochemia, dexa: renderDexa, waga: renderWaga, kalorie: renderKalorie,
+  };
   document.getElementById('mainContent').innerHTML = (map[activeTab] || (() => ''))();
   setTimeout(() => {
-    ({ dashboard: initDashChart, morfologia: initMorfChart, hormony: initHormChart, dexa: initDexaChart, waga: initWagaChart, kalorie: initKalChart })[activeTab]?.();
+    ({ dashboard: initDashChart, morfologia: initMorfChart, hormony: initHormChart,
+       biochemia: initBioChart, dexa: initDexaChart, waga: initWagaChart, kalorie: initKalChart })[activeTab]?.();
   }, 0);
 }
 
@@ -164,39 +196,32 @@ function makeLine(id, labels, datasets, yUnit) {
   charts[id] = new Chart(el, { type: 'line', data: { labels, datasets }, options: baseOpts(yUnit) });
 }
 
-function sectionCard(title, content) {
-  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-4">${title ? `<h3 class="font-semibold text-slate-700 mb-3 text-sm">${title}</h3>` : ''}${content}</div>`;
+function sec(title, content) {
+  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-4">
+    ${title ? `<h3 class="font-semibold text-slate-700 mb-3 text-sm">${title}</h3>` : ''}${content}
+  </div>`;
 }
 
-function inp(name, label, type, step, placeholder, value, extra) {
-  type = type || 'number';
-  step = step || 'any';
-  placeholder = placeholder || '';
-  value = value != null ? value : '';
-  extra = extra || '';
+function inp(name, label, type, step, placeholder, value) {
+  type = type || 'number'; step = step || 'any';
+  placeholder = placeholder || ''; value = value != null ? value : '';
   const mode = type === 'number' ? 'inputmode="decimal"' : '';
   return `<div>
     <label class="block text-xs font-medium text-slate-500 mb-1">${label}</label>
-    <input type="${type}" name="${name}" step="${step}" placeholder="${placeholder}" value="${value}" ${mode} ${extra}
+    <input type="${type}" name="${name}" step="${step}" placeholder="${placeholder}" value="${value}" ${mode}
       class="w-full px-3 py-3 border border-slate-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-slate-50">
   </div>`;
 }
 
-function submitBtn(label, color) {
+function btn(label, color) {
   color = color || 'indigo';
-  const colors = {
-    indigo: 'bg-indigo-600 active:bg-indigo-800',
-    violet: 'bg-violet-600 active:bg-violet-800',
-    orange: 'bg-orange-500 active:bg-orange-700',
-    green:  'bg-green-600 active:bg-green-800',
-    slate:  'bg-slate-600 active:bg-slate-800',
-  };
-  return `<button type="submit" class="w-full ${colors[color] || colors.indigo} text-white font-semibold py-3.5 rounded-xl text-base active:scale-[0.98] transition-transform">${label}</button>`;
+  const c = { indigo:'bg-indigo-600 active:bg-indigo-800', violet:'bg-violet-600 active:bg-violet-800', orange:'bg-orange-500 active:bg-orange-700', green:'bg-green-600 active:bg-green-800', slate:'bg-slate-600 active:bg-slate-800', teal:'bg-teal-600 active:bg-teal-800' };
+  return `<button type="submit" class="w-full ${c[color]||c.indigo} text-white font-semibold py-3.5 rounded-xl text-base active:scale-[0.98] transition-transform">${label}</button>`;
 }
 
-function smallCard(label, value, unit, bg, textColor) {
+function chip(label, value, unit, bg, textColor) {
   return `<div class="text-center p-3 ${bg} rounded-xl">
-    <p class="text-xs text-slate-400 leading-tight mb-1">${label}</p>
+    <p class="text-xs text-slate-400 leading-tight mb-0.5">${label}</p>
     <p class="font-bold ${textColor} text-lg leading-tight">${value}</p>
     <p class="text-xs text-slate-400">${unit}</p>
   </div>`;
@@ -205,28 +230,55 @@ function smallCard(label, value, unit, bg, textColor) {
 function statCard(title, value, sub, valColor) {
   return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
     <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">${title}</p>
-    <p class="text-2xl font-bold ${valColor}">${value}</p>
+    <p class="text-xl font-bold ${valColor} leading-tight">${value}</p>
     ${sub ? `<p class="text-xs text-slate-400 mt-0.5">${sub}</p>` : ''}
   </div>`;
+}
+
+// flag helper — shows out-of-range values prominently
+function flags(entry, fields) {
+  return fields.filter(f => {
+    const v = entry[f.key];
+    return v != null && v !== '' && (v < f.min || v > f.max);
+  }).map(f => `<span class="inline-flex items-center gap-1 bg-red-50 text-red-600 text-xs font-medium px-2 py-1 rounded-lg">⚠ ${f.label}: ${entry[f.key]} ${f.unit}</span>`).join('');
 }
 
 // ─────────────────────────────────────────────
 // DASHBOARD
 // ─────────────────────────────────────────────
 function renderDashboard() {
-  const lastW = [...state.waga].sort((a,b) => b.date.localeCompare(a.date))[0];
-  const lastD = [...state.dexa].sort((a,b) => b.date.localeCompare(a.date))[0];
-  const lastH = [...state.hormony].sort((a,b) => b.date.localeCompare(a.date))[0];
+  const lastW  = [...state.waga].sort((a,b) => b.date.localeCompare(a.date))[0];
+  const lastD  = [...state.dexa].sort((a,b) => b.date.localeCompare(a.date))[0];
+  const lastH  = [...state.hormony].sort((a,b) => b.date.localeCompare(a.date))[0];
+  const lastB  = [...state.biochemia].sort((a,b) => b.date.localeCompare(a.date))[0];
+
+  // collect all flags
+  const allFlags = [];
+  if (lastH) HORM_FIELDS.forEach(f => { const v = lastH[f.key]; if (v != null && (v < f.min || v > f.max)) allFlags.push({ label: f.label, v, unit: f.unit, date: lastH.date }); });
+  if (lastB) BIO_FIELDS.forEach(f => { const v = lastB[f.key]; if (v != null && (v < f.min || v > f.max)) allFlags.push({ label: f.label, v, unit: f.unit, date: lastB.date }); });
+  if (lastW && state.morfologia.length) {
+    const lm = [...state.morfologia].sort((a,b) => b.date.localeCompare(a.date))[0];
+    MORF_FIELDS.forEach(f => { const v = lm[f.key]; if (v != null && (v < f.min || v > f.max)) allFlags.push({ label: f.label, v, unit: f.unit, date: lm.date }); });
+  }
+
+  const flagSection = allFlags.length ? `
+    <div class="bg-red-50 border border-red-100 rounded-2xl p-4 mb-4">
+      <p class="text-xs font-semibold text-red-700 mb-2">Wartości poza normą</p>
+      <div class="flex flex-wrap gap-2">
+        ${allFlags.map(f => `<span class="bg-white border border-red-200 text-red-600 text-xs font-medium px-2.5 py-1.5 rounded-lg">⚠ ${f.label}: <b>${f.v}</b> ${f.unit}</span>`).join('')}
+      </div>
+    </div>` : `<div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4 text-sm text-green-700 font-medium">✓ Wszystkie wyniki w normie</div>`;
 
   return `
+    ${flagSection}
     <div class="grid grid-cols-2 gap-3 mb-4">
       ${statCard('Waga', lastW ? lastW.weight + ' kg' : '—', lastW ? fmt(lastW.date) : 'brak danych', 'text-indigo-600')}
       ${statCard('% tłuszczu', lastD ? lastD.fatPercent + '%' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-orange-500')}
-      ${statCard('Masa tłuszczu', lastD ? lastD.fatMass.toFixed(1) + ' kg' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-red-500')}
-      ${statCard('Testosteron', lastH ? lastH.testosterone + ' nmol/L' : '—', lastH ? fmt(lastH.date) : 'brak danych', 'text-violet-600')}
+      ${statCard('Testosteron', lastH ? lastH.testosterone + ' ng/dL' : '—', lastH ? fmt(lastH.date) : 'brak danych', 'text-violet-600')}
+      ${statCard('SHBG', lastH ? lastH.shbg + ' nmol/L' : '—', lastH ? fmt(lastH.date) : 'brak danych', 'text-cyan-600')}
     </div>
-    ${sectionCard('Waga — historia', '<canvas id="dash_waga" height="180"></canvas>')}
-    ${sectionCard('DEXA — skład ciała', '<canvas id="dash_dexa" height="180"></canvas>')}
+    ${sec('Waga — historia', '<canvas id="dash_waga" height="170"></canvas>')}
+    ${sec('DEXA — skład ciała', '<canvas id="dash_dexa" height="170"></canvas>')}
   `;
 }
 
@@ -234,13 +286,12 @@ function initDashChart() {
   const ws = [...state.waga].sort((a,b) => a.date.localeCompare(b.date));
   makeLine('dash_waga', ws.map(e => fmt(e.date)), [{
     label: 'Waga (kg)', data: ws.map(e => e.weight),
-    borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.08)',
-    tension: 0.4, fill: true, pointRadius: 3,
+    borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.08)', tension: 0.4, fill: true, pointRadius: 3,
   }], 'kg');
   const ds = [...state.dexa].sort((a,b) => a.date.localeCompare(b.date));
   makeLine('dash_dexa', ds.map(e => fmt(e.date)), [
     { label: '% tłuszczu', data: ds.map(e => e.fatPercent), borderColor: '#F97316', tension: 0.4, pointRadius: 4 },
-    { label: 'Masa tłuszczu (kg)', data: ds.map(e => e.fatMass), borderColor: '#EF4444', tension: 0.4, pointRadius: 4 },
+    { label: 'Tłuszcz (kg)', data: ds.map(e => e.fatMass), borderColor: '#EF4444', tension: 0.4, pointRadius: 4 },
   ]);
 }
 
@@ -249,27 +300,20 @@ function initDashChart() {
 // ─────────────────────────────────────────────
 function renderMorfologia() {
   const sorted = [...state.morfologia].sort((a,b) => b.date.localeCompare(a.date));
-  const fields = MORF_FIELDS.map(f =>
-    inp(f.key, `${f.label} (${f.unit})`, 'number', 'any', `${f.min}–${f.max}`)
-  ).join('');
+  const fields = MORF_FIELDS.map(f => inp(f.key, `${f.label} (${f.unit})`, 'number', 'any', `${f.min}–${f.max}`)).join('');
 
   return `
-    ${sectionCard('Dodaj wynik morfologii', `<form id="morfologiaForm" class="space-y-3">
-      ${inp('date', 'Data', 'date', '', '', today())}
-      ${fields}
-      ${submitBtn('Zapisz wynik')}
+    ${sec('Dodaj wynik morfologii', `<form id="morfologiaForm" class="space-y-3">
+      ${inp('date','Data','date','','',today())}${fields}${btn('Zapisz wynik')}
     </form>`)}
-    ${sectionCard('Wyniki morfologii', sorted.length === 0
-      ? '<p class="text-slate-400 text-sm">Brak wyników — dodaj pierwszy pomiar.</p>'
-      : sorted.map(morfEntry).join('')
-    )}
-    ${sorted.length > 1 ? sectionCard('Trend HGB i WBC', '<canvas id="morf_chart" height="200"></canvas>') : ''}
+    ${sec('Wyniki morfologii', sorted.length === 0 ? '<p class="text-slate-400 text-sm">Brak wyników.</p>' : sorted.map(morfEntry).join(''))}
+    ${sorted.length > 1 ? sec('Trend HGB i WBC', '<canvas id="morf_chart" height="200"></canvas>') : ''}
   `;
 }
 
-function morfEntry(entry) {
+function morfEntry(e) {
   const cells = MORF_FIELDS.map(f => {
-    const v = entry[f.key];
+    const v = e[f.key];
     if (v == null || v === '') return '';
     const ok = v >= f.min && v <= f.max;
     return `<div class="text-center p-2 rounded-lg ${ok ? 'bg-green-50' : 'bg-red-50'}">
@@ -281,8 +325,8 @@ function morfEntry(entry) {
 
   return `<div class="border border-slate-100 rounded-xl p-3 mb-3">
     <div class="flex justify-between items-center mb-2">
-      <span class="font-semibold text-slate-700 text-sm">${fmt(entry.date)}</span>
-      <button onclick="del('morfologia','${entry.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
+      <span class="font-semibold text-slate-700 text-sm">${fmt(e.date)}</span>
+      <button onclick="del('morfologia','${e.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
     </div>
     <div class="grid grid-cols-4 gap-1.5">${cells}</div>
   </div>`;
@@ -293,7 +337,7 @@ function initMorfChart() {
   if (s.length < 2) return;
   makeLine('morf_chart', s.map(e => fmt(e.date)), [
     { label: 'HGB (g/dL)', data: s.map(e => e.hgb), borderColor: '#EF4444', tension: 0.4, pointRadius: 3 },
-    { label: 'WBC (x10³/µL)', data: s.map(e => e.wbc), borderColor: '#4F46E5', tension: 0.4, pointRadius: 3 },
+    { label: 'WBC (tys/µL)', data: s.map(e => e.wbc), borderColor: '#4F46E5', tension: 0.4, pointRadius: 3 },
     { label: 'PLT ÷10', data: s.map(e => e.plt ? +(e.plt/10).toFixed(1) : null), borderColor: '#10B981', tension: 0.4, pointRadius: 3 },
   ]);
 }
@@ -303,32 +347,25 @@ function initMorfChart() {
 // ─────────────────────────────────────────────
 function renderHormony() {
   const sorted = [...state.hormony].sort((a,b) => b.date.localeCompare(a.date));
-  const fields = HORM_FIELDS.map(f =>
-    inp(f.key, `${f.label} (${f.unit})`, 'number', 'any', `${f.min}–${f.max}`)
-  ).join('');
+  const fields = HORM_FIELDS.map(f => inp(f.key, `${f.label} (${f.unit})`, 'number', 'any', `${f.min}–${f.max}`)).join('');
 
   return `
-    ${sectionCard('Dodaj wynik hormonów', `<form id="hormonyForm" class="space-y-3">
-      ${inp('date', 'Data', 'date', '', '', today())}
-      ${fields}
-      ${submitBtn('Zapisz wynik', 'violet')}
+    ${sec('Dodaj wynik hormonów', `<form id="hormonyForm" class="space-y-3">
+      ${inp('date','Data','date','','',today())}${fields}${btn('Zapisz wynik','violet')}
     </form>`)}
-    ${sectionCard('Historia hormonów', sorted.length === 0
-      ? '<p class="text-slate-400 text-sm">Brak wyników — dodaj pierwszy pomiar.</p>'
-      : sorted.map(hormEntry).join('')
-    )}
-    ${sorted.length > 1 ? sectionCard('Trend hormonów', '<canvas id="horm_chart" height="200"></canvas>') : ''}
+    ${sec('Historia hormonów', sorted.length === 0 ? '<p class="text-slate-400 text-sm">Brak wyników.</p>' : sorted.map(hormEntry).join(''))}
+    ${sorted.length > 1 ? sec('Trend testosteronu i SHBG', '<canvas id="horm_chart" height="200"></canvas>') : ''}
   `;
 }
 
-function hormEntry(entry) {
+function hormEntry(e) {
   const cells = HORM_FIELDS.map(f => {
-    const v = entry[f.key];
+    const v = e[f.key];
     if (v == null || v === '') return '';
     const ok = v >= f.min && v <= f.max;
     return `<div class="p-3 rounded-xl ${ok ? 'bg-green-50' : 'bg-red-50'}">
-      <p class="text-xs text-slate-500 mb-1">${f.label}</p>
-      <div class="flex items-baseline gap-1.5">
+      <p class="text-xs text-slate-500 mb-0.5">${f.label}</p>
+      <div class="flex items-baseline gap-1">
         <p class="text-xl font-bold ${ok ? 'text-green-700' : 'text-red-600'}">${v}</p>
         <p class="text-xs text-slate-400">${f.unit}</p>
       </div>
@@ -339,10 +376,10 @@ function hormEntry(entry) {
 
   return `<div class="border border-slate-100 rounded-xl p-3 mb-3">
     <div class="flex justify-between items-center mb-2">
-      <span class="font-semibold text-slate-700 text-sm">${fmt(entry.date)}</span>
-      <button onclick="del('hormony','${entry.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
+      <span class="font-semibold text-slate-700 text-sm">${fmt(e.date)}</span>
+      <button onclick="del('hormony','${e.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
     </div>
-    <div class="grid grid-cols-1 gap-2">${cells}</div>
+    <div class="grid grid-cols-2 gap-2">${cells}</div>
   </div>`;
 }
 
@@ -350,8 +387,55 @@ function initHormChart() {
   const s = [...state.hormony].sort((a,b) => a.date.localeCompare(b.date));
   if (s.length < 2) return;
   makeLine('horm_chart', s.map(e => fmt(e.date)), [
-    { label: 'Testosteron (nmol/L)', data: s.map(e => e.testosterone), borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.08)', tension: 0.4, fill: true, pointRadius: 4 },
+    { label: 'Testosteron (ng/dL)', data: s.map(e => e.testosterone), borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.08)', tension: 0.4, fill: true, pointRadius: 4 },
     { label: 'SHBG (nmol/L)', data: s.map(e => e.shbg), borderColor: '#0891B2', tension: 0.4, pointRadius: 4 },
+  ]);
+}
+
+// ─────────────────────────────────────────────
+// BIOCHEMIA
+// ─────────────────────────────────────────────
+function renderBiochemia() {
+  const sorted = [...state.biochemia].sort((a,b) => b.date.localeCompare(a.date));
+  const fields = BIO_FIELDS.map(f => inp(f.key, `${f.label} (${f.unit})`, 'number', 'any', `${f.min}–${f.max}`)).join('');
+
+  return `
+    ${sec('Dodaj wyniki biochemii', `<form id="biochemiaForm" class="space-y-3">
+      ${inp('date','Data','date','','',today())}${fields}${btn('Zapisz wyniki','teal')}
+    </form>`)}
+    ${sec('Historia biochemii', sorted.length === 0 ? '<p class="text-slate-400 text-sm">Brak wyników.</p>' : sorted.map(bioEntry).join(''))}
+    ${sorted.length > 1 ? sec('Trend ALT / AST', '<canvas id="bio_chart" height="200"></canvas>') : ''}
+  `;
+}
+
+function bioEntry(e) {
+  const cells = BIO_FIELDS.map(f => {
+    const v = e[f.key];
+    if (v == null || v === '') return '';
+    const ok = v >= f.min && v <= f.max;
+    return `<div class="text-center p-2 rounded-lg ${ok ? 'bg-green-50' : 'bg-red-50'}">
+      <p class="text-xs text-slate-400 leading-tight">${f.label}</p>
+      <p class="font-bold text-sm ${ok ? 'text-green-700' : 'text-red-600'}">${v}</p>
+      <p class="text-xs text-slate-400">${f.unit}</p>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  return `<div class="border border-slate-100 rounded-xl p-3 mb-3">
+    <div class="flex justify-between items-center mb-2">
+      <span class="font-semibold text-slate-700 text-sm">${fmt(e.date)}</span>
+      <button onclick="del('biochemia','${e.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5">${cells}</div>
+  </div>`;
+}
+
+function initBioChart() {
+  const s = [...state.biochemia].sort((a,b) => a.date.localeCompare(b.date));
+  if (s.length < 2) return;
+  makeLine('bio_chart', s.map(e => fmt(e.date)), [
+    { label: 'ALT (U/l)', data: s.map(e => e.alt), borderColor: '#F97316', tension: 0.4, pointRadius: 4 },
+    { label: 'AST (U/l)', data: s.map(e => e.ast), borderColor: '#EF4444', tension: 0.4, pointRadius: 4 },
+    { label: 'Glukoza (mg/dL)', data: s.map(e => e.glukoza), borderColor: '#8B5CF6', tension: 0.4, pointRadius: 4 },
   ]);
 }
 
@@ -362,17 +446,17 @@ function renderDexa() {
   const sorted = [...state.dexa].sort((a,b) => b.date.localeCompare(a.date));
 
   return `
-    ${sectionCard('Dodaj skan DEXA', `<form id="dexaForm" class="space-y-3">
-      ${inp('date', 'Data', 'date', '', '', today())}
-      ${inp('totalMass', 'Łączna masa (kg)', 'number', 'any', 'np. 95.0')}
-      ${inp('fatMass', 'Masa tłuszczu (kg)', 'number', 'any', 'np. 22.906')}
-      ${inp('leanMass', 'Tkanka beztłuszczowa (kg)', 'number', 'any', 'np. 70.201')}
-      ${inp('fatPercent', '% tłuszczu', 'number', 'any', 'np. 24.6')}
-      ${inp('bmc', 'BMC — minerały kości (kg)', 'number', 'any', 'np. 3.320')}
-      ${submitBtn('Zapisz skan', 'orange')}
+    ${sec('Dodaj skan DEXA', `<form id="dexaForm" class="space-y-3">
+      ${inp('date','Data','date','','',today())}
+      ${inp('totalMass','Łączna masa (kg)','number','any','np. 95.0')}
+      ${inp('fatMass','Masa tłuszczu (kg)','number','any','np. 22.906')}
+      ${inp('leanMass','Tkanka beztłuszczowa (kg)','number','any','np. 70.201')}
+      ${inp('fatPercent','% tłuszczu','number','any','np. 24.6')}
+      ${inp('bmc','BMC — minerały kości (kg)','number','any','np. 3.320')}
+      ${btn('Zapisz skan','orange')}
     </form>`)}
-    ${sectionCard('Historia skanów DEXA', sorted.map(dexaEntry).join(''))}
-    ${sectionCard('Trend składu ciała', '<canvas id="dexa_chart" height="220"></canvas>')}
+    ${sec('Historia skanów DEXA', sorted.map(dexaEntry).join(''))}
+    ${sec('Trend składu ciała', '<canvas id="dexa_chart" height="220"></canvas>')}
   `;
 }
 
@@ -383,13 +467,13 @@ function dexaEntry(e) {
       <button onclick="del('dexa','${e.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
     </div>
     <div class="grid grid-cols-3 gap-2 mb-2">
-      ${smallCard('Łączna masa', e.totalMass != null ? e.totalMass : '—', 'kg', 'bg-slate-50', 'text-slate-800')}
-      ${smallCard('% tłuszczu', e.fatPercent != null ? e.fatPercent : '—', '%', 'bg-orange-50', 'text-orange-600')}
-      ${smallCard('Masa tłuszczu', e.fatMass != null ? e.fatMass.toFixed(2) : '—', 'kg', 'bg-red-50', 'text-red-600')}
+      ${chip('Łączna masa', e.totalMass != null ? e.totalMass : '—', 'kg', 'bg-slate-50', 'text-slate-800')}
+      ${chip('% tłuszczu', e.fatPercent != null ? e.fatPercent : '—', '%', 'bg-orange-50', 'text-orange-600')}
+      ${chip('Masa tłuszczu', e.fatMass != null ? e.fatMass.toFixed(2) : '—', 'kg', 'bg-red-50', 'text-red-600')}
     </div>
     <div class="grid grid-cols-2 gap-2">
-      ${smallCard('Tkanka beztłuszczowa', e.leanMass != null ? e.leanMass.toFixed(2) : '—', 'kg', 'bg-green-50', 'text-green-700')}
-      ${smallCard('BMC', e.bmc != null ? e.bmc.toFixed(3) : '—', 'kg', 'bg-blue-50', 'text-blue-700')}
+      ${chip('Tkanka beztłuszczowa', e.leanMass != null ? e.leanMass.toFixed(2) : '—', 'kg', 'bg-green-50', 'text-green-700')}
+      ${chip('BMC', e.bmc != null ? e.bmc.toFixed(3) : '—', 'kg', 'bg-blue-50', 'text-blue-700')}
     </div>
   </div>`;
 }
@@ -403,18 +487,12 @@ function initDexaChart() {
     data: {
       labels: s.map(e => fmt(e.date)),
       datasets: [
-        { label: 'Tłuszcz (kg)',       data: s.map(e => e.fatMass),  backgroundColor: 'rgba(249,115,22,0.75)', stack: 'b' },
-        { label: 'Tkanka lean (kg)',    data: s.map(e => e.leanMass), backgroundColor: 'rgba(34,197,94,0.75)',  stack: 'b' },
-        { label: 'BMC (kg)',            data: s.map(e => e.bmc),      backgroundColor: 'rgba(59,130,246,0.75)', stack: 'b' },
+        { label: 'Tłuszcz (kg)',    data: s.map(e => e.fatMass),  backgroundColor: 'rgba(249,115,22,0.75)', stack: 'b' },
+        { label: 'Lean tissue (kg)', data: s.map(e => e.leanMass), backgroundColor: 'rgba(34,197,94,0.75)',  stack: 'b' },
+        { label: 'BMC (kg)',         data: s.map(e => e.bmc),      backgroundColor: 'rgba(59,130,246,0.75)', stack: 'b' },
       ],
     },
-    options: {
-      ...baseOpts('kg'),
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
-        y: { stacked: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
-      },
-    },
+    options: { ...baseOpts('kg'), scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } }, y: { stacked: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } } } },
   });
 }
 
@@ -431,13 +509,13 @@ function renderWaga() {
     </div>`).join('');
 
   return `
-    ${sectionCard('Dodaj pomiar', `<form id="wagaForm" class="space-y-3">
-      ${inp('date', 'Data', 'date', '', '', today())}
-      ${inp('weight', 'Waga (kg)', 'number', 'any', 'np. 95.3')}
-      ${submitBtn('Zapisz pomiar')}
+    ${sec('Dodaj pomiar', `<form id="wagaForm" class="space-y-3">
+      ${inp('date','Data','date','','',today())}
+      ${inp('weight','Waga (kg)','number','any','np. 95.3')}
+      ${btn('Zapisz pomiar')}
     </form>`)}
-    ${sectionCard('Trend wagi', '<canvas id="waga_chart" height="220"></canvas>')}
-    ${sectionCard('Historia', `<div class="max-h-64 overflow-y-auto">${rows || '<p class="text-slate-400 text-sm">Brak pomiarów.</p>'}</div>`)}
+    ${sec('Trend wagi', '<canvas id="waga_chart" height="220"></canvas>')}
+    ${sec('Historia', `<div class="max-h-64 overflow-y-auto">${rows || '<p class="text-slate-400 text-sm">Brak pomiarów.</p>'}</div>`)}
   `;
 }
 
@@ -466,7 +544,6 @@ function renderKalorie() {
   }
 
   const recentEntries = [...entries].sort((a,b) => b.date.localeCompare(a.date));
-
   const entryRows = recentEntries.map(e => {
     const diff = (e.calories || 0) - target;
     const cls = Math.abs(diff) <= 150 ? 'text-green-600' : diff > 0 ? 'text-red-500' : 'text-blue-500';
@@ -479,14 +556,14 @@ function renderKalorie() {
   }).join('');
 
   return `
-    ${sectionCard('Cel dzienny', `<form id="targetForm" class="space-y-3">
-      ${inp('target',   'Kalorie (kcal)',     'number', '1', '', target)}
-      ${inp('proteinG', 'Białko (g)',          'number', '1', '', proteinG)}
-      ${inp('carbsG',   'Węglowodany (g)',     'number', '1', '', carbsG)}
-      ${inp('fatG',     'Tłuszcze (g)',        'number', '1', '', fatG)}
-      ${submitBtn('Zapisz cel', 'slate')}
+    ${sec('Cel dzienny', `<form id="targetForm" class="space-y-3">
+      ${inp('target','Kalorie (kcal)','number','1','',target)}
+      ${inp('proteinG','Białko (g)','number','1','',proteinG)}
+      ${inp('carbsG','Węglowodany (g)','number','1','',carbsG)}
+      ${inp('fatG','Tłuszcze (g)','number','1','',fatG)}
+      ${btn('Zapisz cel','slate')}
     </form>`)}
-    ${sectionCard('Makroskładniki', `<div class="space-y-3">
+    ${sec('Makroskładniki', `<div class="space-y-3">
       ${mBar('Białko', proteinG, pCal, 'bg-red-400', 'text-red-600')}
       ${mBar('Węglowodany', carbsG, cCal, 'bg-yellow-400', 'text-yellow-600')}
       ${mBar('Tłuszcze', fatG, fCal, 'bg-blue-400', 'text-blue-600')}
@@ -495,16 +572,16 @@ function renderKalorie() {
         <span class="font-bold text-indigo-600">${tot} kcal</span>
       </div>
     </div>`)}
-    ${sectionCard('Zapisz dzień', `<form id="kalorieEntryForm" class="space-y-3">
-      ${inp('date',     'Data',               'date',   '',  '', today())}
-      ${inp('calories', 'Kalorie (kcal)',      'number', '1', target.toString())}
-      ${inp('protein',  'Białko (g)',          'number', '1', proteinG.toString())}
-      ${inp('carbs',    'Węglowodany (g)',      'number', '1', carbsG.toString())}
-      ${inp('fat',      'Tłuszcze (g)',         'number', '1', fatG.toString())}
-      ${submitBtn('Zapisz dzień', 'green')}
+    ${sec('Zapisz dzień', `<form id="kalorieEntryForm" class="space-y-3">
+      ${inp('date','Data','date','','',today())}
+      ${inp('calories','Kalorie (kcal)','number','1',target.toString())}
+      ${inp('protein','Białko (g)','number','1',proteinG.toString())}
+      ${inp('carbs','Węglowodany (g)','number','1',carbsG.toString())}
+      ${inp('fat','Tłuszcze (g)','number','1',fatG.toString())}
+      ${btn('Zapisz dzień','green')}
     </form>`)}
-    ${sectionCard('Kalorie — historia', '<canvas id="kal_chart" height="200"></canvas>')}
-    ${sectionCard('Dziennik', `<div>${entryRows || '<p class="text-slate-400 text-sm">Brak wpisów.</p>'}</div>`)}
+    ${sec('Kalorie — historia', '<canvas id="kal_chart" height="200"></canvas>')}
+    ${sec('Dziennik', `<div>${entryRows || '<p class="text-slate-400 text-sm">Brak wpisów.</p>'}</div>`)}
   `;
 }
 
@@ -518,22 +595,9 @@ function initKalChart() {
     data: {
       labels: entries.map(e => fmt(e.date)),
       datasets: [
-        {
-          label: 'Kalorie (kcal)',
-          data: entries.map(e => e.calories),
-          backgroundColor: entries.map(e => {
-            const d = (e.calories || 0) - target;
-            if (Math.abs(d) <= 150) return 'rgba(34,197,94,0.75)';
-            return d > 0 ? 'rgba(239,68,68,0.75)' : 'rgba(59,130,246,0.75)';
-          }),
-          borderRadius: 5,
-        },
-        {
-          label: 'Cel (' + target + ' kcal)',
-          data: entries.map(() => target),
-          type: 'line', borderColor: '#94A3B8', borderDash: [4,4],
-          borderWidth: 1.5, pointRadius: 0, fill: false,
-        },
+        { label: 'Kalorie (kcal)', data: entries.map(e => e.calories), borderRadius: 5,
+          backgroundColor: entries.map(e => { const d = (e.calories||0)-target; return Math.abs(d)<=150 ? 'rgba(34,197,94,0.75)' : d>0 ? 'rgba(239,68,68,0.75)' : 'rgba(59,130,246,0.75)'; }) },
+        { label: `Cel (${target} kcal)`, data: entries.map(()=>target), type: 'line', borderColor: '#94A3B8', borderDash: [4,4], borderWidth: 1.5, pointRadius: 0, fill: false },
       ],
     },
     options: baseOpts('kcal'),
@@ -556,6 +620,11 @@ document.addEventListener('submit', e => {
       const entry = { id: uid(), date: fd.date };
       HORM_FIELDS.forEach(f => { if (fd[f.key] !== '') entry[f.key] = parseFloat(fd[f.key]); });
       state.hormony.push(entry); saveState(); switchTab('hormony'); break;
+    }
+    case 'biochemiaForm': {
+      const entry = { id: uid(), date: fd.date };
+      BIO_FIELDS.forEach(f => { if (fd[f.key] !== '') entry[f.key] = parseFloat(fd[f.key]); });
+      state.biochemia.push(entry); saveState(); switchTab('biochemia'); break;
     }
     case 'dexaForm': {
       state.dexa.push({ id: uid(), date: fd.date, totalMass: parseFloat(fd.totalMass), fatMass: parseFloat(fd.fatMass), leanMass: parseFloat(fd.leanMass), fatPercent: parseFloat(fd.fatPercent), bmc: parseFloat(fd.bmc) });
