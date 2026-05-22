@@ -3,34 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Health Metrics Tracker</title>
+  <title>Health Metrics</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
     .tab-active { border-bottom-color: #4F46E5 !important; color: #4F46E5 !important; font-weight: 600; }
-    input::-webkit-inner-spin-button { opacity: 1; }
+    input[type=number] { -moz-appearance: textfield; }
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-<header class="bg-white border-b border-slate-200 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
-    <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-lg font-bold">H</div>
+<!-- Header -->
+<header class="bg-white border-b border-slate-200">
+  <div class="px-4 py-3 flex items-center gap-3">
+    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">H</div>
     <div>
-      <h1 class="text-xl font-bold text-slate-800 leading-tight">Health Metrics</h1>
-      <p class="text-xs text-slate-400">Twoje wyniki zdrowotne w jednym miejscu</p>
+      <h1 class="text-base font-bold text-slate-800 leading-tight">Health Metrics</h1>
+      <p class="text-xs text-slate-400">Twoje wyniki zdrowotne</p>
     </div>
   </div>
 </header>
 
-<div class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-  <div class="max-w-7xl mx-auto px-2 sm:px-6">
-    <nav class="flex overflow-x-auto" id="tabNav"></nav>
-  </div>
+<!-- Tab bar — sticky, scrollable -->
+<div class="bg-white border-b border-slate-200 sticky top-0 z-20">
+  <nav class="flex overflow-x-auto scrollbar-none" id="tabNav" style="scrollbar-width:none;-webkit-overflow-scrolling:touch;"></nav>
 </div>
 
-<main class="max-w-7xl mx-auto px-3 sm:px-6 py-6" id="mainContent"></main>
+<main class="px-3 py-4 pb-8 max-w-2xl mx-auto" id="mainContent"></main>
 
 <script>
 // ─────────────────────────────────────────────
@@ -62,9 +65,9 @@ const MORF_FIELDS = [
 ];
 
 const HORM_FIELDS = [
-  { key: 'testosterone',     label: 'Testosteron całkowity', unit: 'nmol/L', min: 9.9,  max: 27.8  },
-  { key: 'freeTestosterone', label: 'Testosteron wolny',     unit: 'pmol/L', min: 174,  max: 729   },
-  { key: 'shbg',             label: 'SHBG',                  unit: 'nmol/L', min: 16.5, max: 55.9  },
+  { key: 'testosterone',     label: 'Testosteron całkowity', unit: 'nmol/L', min: 9.9,  max: 27.8 },
+  { key: 'freeTestosterone', label: 'Testosteron wolny',     unit: 'pmol/L', min: 174,  max: 729  },
+  { key: 'shbg',             label: 'SHBG',                  unit: 'nmol/L', min: 16.5, max: 55.9 },
 ];
 
 const DEFAULT_STATE = {
@@ -87,21 +90,16 @@ const DEFAULT_STATE = {
 // STATE
 // ─────────────────────────────────────────────
 let state = (() => {
-  try { return JSON.parse(localStorage.getItem('hmt_state')) || DEFAULT_STATE; }
+  try { return JSON.parse(localStorage.getItem('hmt_v2')) || DEFAULT_STATE; }
   catch { return DEFAULT_STATE; }
 })();
 
 let activeTab = 'dashboard';
 let charts = {};
 
-function saveState() {
-  localStorage.setItem('hmt_state', JSON.stringify(state));
-}
-
-function uid() { return Date.now().toString() + Math.random().toString(36).slice(2, 6); }
-
+function saveState() { localStorage.setItem('hmt_v2', JSON.stringify(state)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
 function today() { return new Date().toISOString().split('T')[0]; }
-
 function fmt(d) {
   if (!d) return '';
   const [y, m, day] = d.split('-');
@@ -114,10 +112,15 @@ function fmt(d) {
 function renderTabs() {
   document.getElementById('tabNav').innerHTML = TABS.map(t => `
     <button onclick="switchTab('${t.id}')"
-      class="px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors
-             ${activeTab === t.id ? 'tab-active border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}">
+      class="px-4 py-3.5 text-sm whitespace-nowrap border-b-2 transition-colors min-w-fit
+             ${activeTab === t.id ? 'tab-active border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'}">
       ${t.label}
     </button>`).join('');
+  // scroll active tab into view
+  setTimeout(() => {
+    const active = document.querySelector('.tab-active');
+    if (active) active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, 50);
 }
 
 function switchTab(tab) {
@@ -126,36 +129,31 @@ function switchTab(tab) {
   charts = {};
   renderTabs();
   renderContent();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function renderContent() {
-  const el = document.getElementById('mainContent');
   const map = { dashboard: renderDashboard, morfologia: renderMorfologia, hormony: renderHormony, dexa: renderDexa, waga: renderWaga, kalorie: renderKalorie };
-  el.innerHTML = (map[activeTab] || (() => ''))();
+  document.getElementById('mainContent').innerHTML = (map[activeTab] || (() => ''))();
   setTimeout(() => {
-    if (activeTab === 'dashboard')  { initDashChart(); }
-    if (activeTab === 'morfologia') { initMorfChart(); }
-    if (activeTab === 'hormony')    { initHormChart(); }
-    if (activeTab === 'dexa')       { initDexaChart(); }
-    if (activeTab === 'waga')       { initWagaChart(); }
-    if (activeTab === 'kalorie')    { initKalChart(); }
+    ({ dashboard: initDashChart, morfologia: initMorfChart, hormony: initHormChart, dexa: initDexaChart, waga: initWagaChart, kalorie: initKalChart })[activeTab]?.();
   }, 0);
 }
 
 // ─────────────────────────────────────────────
-// CHART HELPERS
+// UI HELPERS
 // ─────────────────────────────────────────────
 function baseOpts(yUnit) {
   return {
     responsive: true,
     interaction: { mode: 'index', intersect: false },
     plugins: {
-      legend: { position: 'top', labels: { usePointStyle: true, padding: 14, font: { size: 11 } } },
+      legend: { position: 'top', labels: { usePointStyle: true, padding: 12, font: { size: 11 }, boxWidth: 8 } },
       tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}${yUnit ? ' ' + yUnit : ''}` } },
     },
     scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
     },
   };
 }
@@ -166,35 +164,49 @@ function makeLine(id, labels, datasets, yUnit) {
   charts[id] = new Chart(el, { type: 'line', data: { labels, datasets }, options: baseOpts(yUnit) });
 }
 
-function card(title, value, sub, valClass) {
-  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-    <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">${title}</p>
-    <p class="text-2xl font-bold ${valClass}">${value}</p>
-    ${sub ? `<p class="text-xs text-slate-400 mt-1">${sub}</p>` : ''}
-  </div>`;
+function sectionCard(title, content) {
+  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-4">${title ? `<h3 class="font-semibold text-slate-700 mb-3 text-sm">${title}</h3>` : ''}${content}</div>`;
 }
 
-function formInput(name, label, type, step, placeholder, value) {
+function inp(name, label, type, step, placeholder, value, extra) {
   type = type || 'number';
-  step = step || '0.1';
+  step = step || 'any';
   placeholder = placeholder || '';
-  value = value || '';
+  value = value != null ? value : '';
+  extra = extra || '';
+  const mode = type === 'number' ? 'inputmode="decimal"' : '';
   return `<div>
-    <label class="text-xs font-medium text-slate-600">${label}</label>
-    <input type="${type}" name="${name}" step="${step}" placeholder="${placeholder}" value="${value}"
-      class="w-full mt-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+    <label class="block text-xs font-medium text-slate-500 mb-1">${label}</label>
+    <input type="${type}" name="${name}" step="${step}" placeholder="${placeholder}" value="${value}" ${mode} ${extra}
+      class="w-full px-3 py-3 border border-slate-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-slate-50">
   </div>`;
 }
 
-function addBtn(label, color) {
+function submitBtn(label, color) {
   color = color || 'indigo';
-  return `<button type="submit" class="w-full bg-${color}-600 hover:bg-${color}-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-colors">${label}</button>`;
+  const colors = {
+    indigo: 'bg-indigo-600 active:bg-indigo-800',
+    violet: 'bg-violet-600 active:bg-violet-800',
+    orange: 'bg-orange-500 active:bg-orange-700',
+    green:  'bg-green-600 active:bg-green-800',
+    slate:  'bg-slate-600 active:bg-slate-800',
+  };
+  return `<button type="submit" class="w-full ${colors[color] || colors.indigo} text-white font-semibold py-3.5 rounded-xl text-base active:scale-[0.98] transition-transform">${label}</button>`;
 }
 
-function formCard(title, formId, children) {
-  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-    <h3 class="font-semibold text-slate-700 mb-4">${title}</h3>
-    <form id="${formId}" class="space-y-3">${children}</form>
+function smallCard(label, value, unit, bg, textColor) {
+  return `<div class="text-center p-3 ${bg} rounded-xl">
+    <p class="text-xs text-slate-400 leading-tight mb-1">${label}</p>
+    <p class="font-bold ${textColor} text-lg leading-tight">${value}</p>
+    <p class="text-xs text-slate-400">${unit}</p>
+  </div>`;
+}
+
+function statCard(title, value, sub, valColor) {
+  return `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+    <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">${title}</p>
+    <p class="text-2xl font-bold ${valColor}">${value}</p>
+    ${sub ? `<p class="text-xs text-slate-400 mt-0.5">${sub}</p>` : ''}
   </div>`;
 }
 
@@ -202,38 +214,30 @@ function formCard(title, formId, children) {
 // DASHBOARD
 // ─────────────────────────────────────────────
 function renderDashboard() {
-  const lastW = [...state.waga].sort((a,b) => a.date > b.date ? -1 : 1)[0];
-  const lastD = [...state.dexa].sort((a,b) => a.date > b.date ? -1 : 1)[0];
-  const lastH = [...state.hormony].sort((a,b) => a.date > b.date ? -1 : 1)[0];
+  const lastW = [...state.waga].sort((a,b) => b.date.localeCompare(a.date))[0];
+  const lastD = [...state.dexa].sort((a,b) => b.date.localeCompare(a.date))[0];
+  const lastH = [...state.hormony].sort((a,b) => b.date.localeCompare(a.date))[0];
 
   return `
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-      ${card('Waga', lastW ? lastW.weight + ' kg' : '—', lastW ? fmt(lastW.date) : 'brak danych', 'text-indigo-600')}
-      ${card('Tkanka tłuszczowa', lastD ? lastD.fatPercent + '%' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-orange-500')}
-      ${card('Masa tłuszczu', lastD ? lastD.fatMass.toFixed(2) + ' kg' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-red-500')}
-      ${card('Testosteron', lastH ? lastH.testosterone + ' nmol/L' : '—', lastH ? fmt(lastH.date) : 'brak danych', 'text-violet-600')}
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      ${statCard('Waga', lastW ? lastW.weight + ' kg' : '—', lastW ? fmt(lastW.date) : 'brak danych', 'text-indigo-600')}
+      ${statCard('% tłuszczu', lastD ? lastD.fatPercent + '%' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-orange-500')}
+      ${statCard('Masa tłuszczu', lastD ? lastD.fatMass.toFixed(1) + ' kg' : '—', lastD ? fmt(lastD.date) : 'brak danych', 'text-red-500')}
+      ${statCard('Testosteron', lastH ? lastH.testosterone + ' nmol/L' : '—', lastH ? fmt(lastH.date) : 'brak danych', 'text-violet-600')}
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">Waga — historia</h3>
-        <canvas id="dash_waga" height="210"></canvas>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">DEXA — skład ciała</h3>
-        <canvas id="dash_dexa" height="210"></canvas>
-      </div>
-    </div>`;
+    ${sectionCard('Waga — historia', '<canvas id="dash_waga" height="180"></canvas>')}
+    ${sectionCard('DEXA — skład ciała', '<canvas id="dash_dexa" height="180"></canvas>')}
+  `;
 }
 
 function initDashChart() {
-  const ws = [...state.waga].sort((a,b) => a.date > b.date ? 1 : -1);
+  const ws = [...state.waga].sort((a,b) => a.date.localeCompare(b.date));
   makeLine('dash_waga', ws.map(e => fmt(e.date)), [{
     label: 'Waga (kg)', data: ws.map(e => e.weight),
     borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.08)',
     tension: 0.4, fill: true, pointRadius: 3,
   }], 'kg');
-
-  const ds = [...state.dexa].sort((a,b) => a.date > b.date ? 1 : -1);
+  const ds = [...state.dexa].sort((a,b) => a.date.localeCompare(b.date));
   makeLine('dash_dexa', ds.map(e => fmt(e.date)), [
     { label: '% tłuszczu', data: ds.map(e => e.fatPercent), borderColor: '#F97316', tension: 0.4, pointRadius: 4 },
     { label: 'Masa tłuszczu (kg)', data: ds.map(e => e.fatMass), borderColor: '#EF4444', tension: 0.4, pointRadius: 4 },
@@ -244,36 +248,23 @@ function initDashChart() {
 // MORFOLOGIA
 // ─────────────────────────────────────────────
 function renderMorfologia() {
-  const sorted = [...state.morfologia].sort((a,b) => a.date > b.date ? -1 : 1);
-
+  const sorted = [...state.morfologia].sort((a,b) => b.date.localeCompare(a.date));
   const fields = MORF_FIELDS.map(f =>
-    formInput(f.key, f.label + ' <span class="text-slate-400 font-normal">(' + f.unit + ')</span>', 'number', '0.01', f.min + '–' + f.max)
+    inp(f.key, `${f.label} (${f.unit})`, 'number', 'any', `${f.min}–${f.max}`)
   ).join('');
 
-  const entries = sorted.length === 0
-    ? '<p class="text-slate-400 text-sm py-2">Brak wyników — dodaj pierwszy pomiar.</p>'
-    : sorted.map(morfEntry).join('');
-
-  const chartSection = sorted.length > 1 ? `
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-      <h3 class="font-semibold text-slate-700 mb-4">Trend HGB i WBC</h3>
-      <canvas id="morf_chart" height="180"></canvas>
-    </div>` : '';
-
-  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <div class="space-y-4">
-      ${formCard('Dodaj wynik morfologii', 'morfologiaForm',
-        formInput('date', 'Data', 'date', '', '', today()) + fields + addBtn('Zapisz wynik')
-      )}
-    </div>
-    <div class="lg:col-span-2 space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">Wyniki morfologii</h3>
-        ${entries}
-      </div>
-      ${chartSection}
-    </div>
-  </div>`;
+  return `
+    ${sectionCard('Dodaj wynik morfologii', `<form id="morfologiaForm" class="space-y-3">
+      ${inp('date', 'Data', 'date', '', '', today())}
+      ${fields}
+      ${submitBtn('Zapisz wynik')}
+    </form>`)}
+    ${sectionCard('Wyniki morfologii', sorted.length === 0
+      ? '<p class="text-slate-400 text-sm">Brak wyników — dodaj pierwszy pomiar.</p>'
+      : sorted.map(morfEntry).join('')
+    )}
+    ${sorted.length > 1 ? sectionCard('Trend HGB i WBC', '<canvas id="morf_chart" height="200"></canvas>') : ''}
+  `;
 }
 
 function morfEntry(entry) {
@@ -282,28 +273,28 @@ function morfEntry(entry) {
     if (v == null || v === '') return '';
     const ok = v >= f.min && v <= f.max;
     return `<div class="text-center p-2 rounded-lg ${ok ? 'bg-green-50' : 'bg-red-50'}">
-      <p class="text-xs text-slate-400">${f.label}</p>
+      <p class="text-xs text-slate-400 leading-tight">${f.label}</p>
       <p class="font-bold text-sm ${ok ? 'text-green-700' : 'text-red-600'}">${v}</p>
       <p class="text-xs text-slate-400">${f.unit}</p>
     </div>`;
   }).filter(Boolean).join('');
 
-  return `<div class="border border-slate-100 rounded-xl p-4 mb-3">
-    <div class="flex justify-between items-center mb-3">
-      <span class="font-semibold text-slate-700">${fmt(entry.date)}</span>
-      <button onclick="del('morfologia','${entry.id}')" class="text-xs text-red-400 hover:text-red-600 transition-colors">Usuń</button>
+  return `<div class="border border-slate-100 rounded-xl p-3 mb-3">
+    <div class="flex justify-between items-center mb-2">
+      <span class="font-semibold text-slate-700 text-sm">${fmt(entry.date)}</span>
+      <button onclick="del('morfologia','${entry.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
     </div>
-    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">${cells}</div>
+    <div class="grid grid-cols-4 gap-1.5">${cells}</div>
   </div>`;
 }
 
 function initMorfChart() {
-  const sorted = [...state.morfologia].sort((a,b) => a.date > b.date ? 1 : -1);
-  if (sorted.length < 2) return;
-  makeLine('morf_chart', sorted.map(e => fmt(e.date)), [
-    { label: 'HGB (g/dL)', data: sorted.map(e => e.hgb), borderColor: '#EF4444', tension: 0.4, pointRadius: 4 },
-    { label: 'WBC (x10³/µL)', data: sorted.map(e => e.wbc), borderColor: '#4F46E5', tension: 0.4, pointRadius: 4 },
-    { label: 'PLT ÷10 (x10³/µL)', data: sorted.map(e => e.plt ? +(e.plt/10).toFixed(1) : null), borderColor: '#10B981', tension: 0.4, pointRadius: 4 },
+  const s = [...state.morfologia].sort((a,b) => a.date.localeCompare(b.date));
+  if (s.length < 2) return;
+  makeLine('morf_chart', s.map(e => fmt(e.date)), [
+    { label: 'HGB (g/dL)', data: s.map(e => e.hgb), borderColor: '#EF4444', tension: 0.4, pointRadius: 3 },
+    { label: 'WBC (x10³/µL)', data: s.map(e => e.wbc), borderColor: '#4F46E5', tension: 0.4, pointRadius: 3 },
+    { label: 'PLT ÷10', data: s.map(e => e.plt ? +(e.plt/10).toFixed(1) : null), borderColor: '#10B981', tension: 0.4, pointRadius: 3 },
   ]);
 }
 
@@ -311,36 +302,23 @@ function initMorfChart() {
 // HORMONY
 // ─────────────────────────────────────────────
 function renderHormony() {
-  const sorted = [...state.hormony].sort((a,b) => a.date > b.date ? -1 : 1);
-
+  const sorted = [...state.hormony].sort((a,b) => b.date.localeCompare(a.date));
   const fields = HORM_FIELDS.map(f =>
-    formInput(f.key, f.label + ' <span class="text-slate-400 font-normal">(' + f.unit + ')</span>', 'number', '0.01', f.min + '–' + f.max)
+    inp(f.key, `${f.label} (${f.unit})`, 'number', 'any', `${f.min}–${f.max}`)
   ).join('');
 
-  const entries = sorted.length === 0
-    ? '<p class="text-slate-400 text-sm py-2">Brak wyników — dodaj pierwszy pomiar.</p>'
-    : sorted.map(hormEntry).join('');
-
-  const chartSection = sorted.length > 1 ? `
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-      <h3 class="font-semibold text-slate-700 mb-4">Trend hormonów</h3>
-      <canvas id="horm_chart" height="180"></canvas>
-    </div>` : '';
-
-  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <div>
-      ${formCard('Dodaj wynik hormonów', 'hormonyForm',
-        formInput('date', 'Data', 'date', '', '', today()) + fields + addBtn('Zapisz wynik', 'violet')
-      )}
-    </div>
-    <div class="lg:col-span-2 space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">Historia hormonów</h3>
-        ${entries}
-      </div>
-      ${chartSection}
-    </div>
-  </div>`;
+  return `
+    ${sectionCard('Dodaj wynik hormonów', `<form id="hormonyForm" class="space-y-3">
+      ${inp('date', 'Data', 'date', '', '', today())}
+      ${fields}
+      ${submitBtn('Zapisz wynik', 'violet')}
+    </form>`)}
+    ${sectionCard('Historia hormonów', sorted.length === 0
+      ? '<p class="text-slate-400 text-sm">Brak wyników — dodaj pierwszy pomiar.</p>'
+      : sorted.map(hormEntry).join('')
+    )}
+    ${sorted.length > 1 ? sectionCard('Trend hormonów', '<canvas id="horm_chart" height="200"></canvas>') : ''}
+  `;
 }
 
 function hormEntry(entry) {
@@ -348,30 +326,32 @@ function hormEntry(entry) {
     const v = entry[f.key];
     if (v == null || v === '') return '';
     const ok = v >= f.min && v <= f.max;
-    return `<div class="text-center p-4 rounded-xl ${ok ? 'bg-green-50' : 'bg-red-50'}">
+    return `<div class="p-3 rounded-xl ${ok ? 'bg-green-50' : 'bg-red-50'}">
       <p class="text-xs text-slate-500 mb-1">${f.label}</p>
-      <p class="text-2xl font-bold ${ok ? 'text-green-700' : 'text-red-600'}">${v}</p>
-      <p class="text-xs text-slate-400 mt-1">${f.unit}</p>
-      <p class="text-xs mt-1 font-medium ${ok ? 'text-green-500' : 'text-red-500'}">${ok ? '✓ norma' : '⚠ poza normą'}</p>
-      <p class="text-xs text-slate-300 mt-0.5">${f.min}–${f.max}</p>
+      <div class="flex items-baseline gap-1.5">
+        <p class="text-xl font-bold ${ok ? 'text-green-700' : 'text-red-600'}">${v}</p>
+        <p class="text-xs text-slate-400">${f.unit}</p>
+      </div>
+      <p class="text-xs font-medium mt-1 ${ok ? 'text-green-500' : 'text-red-500'}">${ok ? '✓ norma' : '⚠ poza normą'}</p>
+      <p class="text-xs text-slate-300">${f.min}–${f.max}</p>
     </div>`;
   }).join('');
 
-  return `<div class="border border-slate-100 rounded-xl p-4 mb-3">
-    <div class="flex justify-between items-center mb-3">
-      <span class="font-semibold text-slate-700">${fmt(entry.date)}</span>
-      <button onclick="del('hormony','${entry.id}')" class="text-xs text-red-400 hover:text-red-600">Usuń</button>
+  return `<div class="border border-slate-100 rounded-xl p-3 mb-3">
+    <div class="flex justify-between items-center mb-2">
+      <span class="font-semibold text-slate-700 text-sm">${fmt(entry.date)}</span>
+      <button onclick="del('hormony','${entry.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">${cells}</div>
+    <div class="grid grid-cols-1 gap-2">${cells}</div>
   </div>`;
 }
 
 function initHormChart() {
-  const sorted = [...state.hormony].sort((a,b) => a.date > b.date ? 1 : -1);
-  if (sorted.length < 2) return;
-  makeLine('horm_chart', sorted.map(e => fmt(e.date)), [
-    { label: 'Testosteron (nmol/L)', data: sorted.map(e => e.testosterone), borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.08)', tension: 0.4, fill: true, pointRadius: 5 },
-    { label: 'SHBG (nmol/L)', data: sorted.map(e => e.shbg), borderColor: '#0891B2', tension: 0.4, pointRadius: 5 },
+  const s = [...state.hormony].sort((a,b) => a.date.localeCompare(b.date));
+  if (s.length < 2) return;
+  makeLine('horm_chart', s.map(e => fmt(e.date)), [
+    { label: 'Testosteron (nmol/L)', data: s.map(e => e.testosterone), borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.08)', tension: 0.4, fill: true, pointRadius: 4 },
+    { label: 'SHBG (nmol/L)', data: s.map(e => e.shbg), borderColor: '#0891B2', tension: 0.4, pointRadius: 4 },
   ]);
 }
 
@@ -379,88 +359,60 @@ function initHormChart() {
 // DEXA
 // ─────────────────────────────────────────────
 function renderDexa() {
-  const sorted = [...state.dexa].sort((a,b) => a.date > b.date ? -1 : 1);
+  const sorted = [...state.dexa].sort((a,b) => b.date.localeCompare(a.date));
 
-  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <div>
-      ${formCard('Dodaj skan DEXA', 'dexaForm',
-        formInput('date', 'Data', 'date', '', '', today()) +
-        formInput('totalMass', 'Łączna masa (kg)', 'number', '0.1', 'np. 95.0') +
-        formInput('fatMass', 'Masa tkanki tłuszczowej (kg)', 'number', '0.001', 'np. 22.906') +
-        formInput('leanMass', 'Tkanka beztłuszczowa — miękka (kg)', 'number', '0.001', 'np. 70.201') +
-        formInput('fatPercent', '% tłuszczu', 'number', '0.1', 'np. 24.6') +
-        formInput('bmc', 'BMC — zawartość mineralna kości (kg)', 'number', '0.001', 'np. 3.320') +
-        addBtn('Zapisz skan', 'orange')
-      )}
-    </div>
-    <div class="lg:col-span-2 space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">Historia skanów DEXA</h3>
-        ${sorted.map(dexaEntry).join('')}
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">Trend składu ciała</h3>
-        <canvas id="dexa_chart" height="220"></canvas>
-      </div>
-    </div>
-  </div>`;
+  return `
+    ${sectionCard('Dodaj skan DEXA', `<form id="dexaForm" class="space-y-3">
+      ${inp('date', 'Data', 'date', '', '', today())}
+      ${inp('totalMass', 'Łączna masa (kg)', 'number', 'any', 'np. 95.0')}
+      ${inp('fatMass', 'Masa tłuszczu (kg)', 'number', 'any', 'np. 22.906')}
+      ${inp('leanMass', 'Tkanka beztłuszczowa (kg)', 'number', 'any', 'np. 70.201')}
+      ${inp('fatPercent', '% tłuszczu', 'number', 'any', 'np. 24.6')}
+      ${inp('bmc', 'BMC — minerały kości (kg)', 'number', 'any', 'np. 3.320')}
+      ${submitBtn('Zapisz skan', 'orange')}
+    </form>`)}
+    ${sectionCard('Historia skanów DEXA', sorted.map(dexaEntry).join(''))}
+    ${sectionCard('Trend składu ciała', '<canvas id="dexa_chart" height="220"></canvas>')}
+  `;
 }
 
 function dexaEntry(e) {
-  return `<div class="border border-slate-100 rounded-xl p-4 mb-3">
-    <div class="flex justify-between items-center mb-3">
-      <span class="font-semibold text-slate-700">${fmt(e.date)}</span>
-      <button onclick="del('dexa','${e.id}')" class="text-xs text-red-400 hover:text-red-600">Usuń</button>
+  return `<div class="border border-slate-100 rounded-xl p-3 mb-3">
+    <div class="flex justify-between items-center mb-2">
+      <span class="font-semibold text-slate-700 text-sm">${fmt(e.date)}</span>
+      <button onclick="del('dexa','${e.id}')" class="text-xs text-red-400 py-1 px-2 -mr-1">Usuń</button>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
-      <div class="p-3 bg-slate-50 rounded-xl">
-        <p class="text-xs text-slate-400">Łączna masa</p>
-        <p class="font-bold text-slate-800 text-lg">${e.totalMass != null ? e.totalMass : '—'}</p>
-        <p class="text-xs text-slate-400">kg</p>
-      </div>
-      <div class="p-3 bg-orange-50 rounded-xl">
-        <p class="text-xs text-slate-400">% tłuszczu</p>
-        <p class="font-bold text-orange-600 text-lg">${e.fatPercent != null ? e.fatPercent : '—'}</p>
-        <p class="text-xs text-slate-400">%</p>
-      </div>
-      <div class="p-3 bg-red-50 rounded-xl">
-        <p class="text-xs text-slate-400">Masa tłuszczu</p>
-        <p class="font-bold text-red-600 text-lg">${e.fatMass != null ? e.fatMass.toFixed(2) : '—'}</p>
-        <p class="text-xs text-slate-400">kg</p>
-      </div>
-      <div class="p-3 bg-green-50 rounded-xl">
-        <p class="text-xs text-slate-400">Tkanka beztłuszczowa</p>
-        <p class="font-bold text-green-700 text-lg">${e.leanMass != null ? e.leanMass.toFixed(2) : '—'}</p>
-        <p class="text-xs text-slate-400">kg</p>
-      </div>
-      <div class="p-3 bg-blue-50 rounded-xl">
-        <p class="text-xs text-slate-400">BMC</p>
-        <p class="font-bold text-blue-700 text-lg">${e.bmc != null ? e.bmc.toFixed(3) : '—'}</p>
-        <p class="text-xs text-slate-400">kg</p>
-      </div>
+    <div class="grid grid-cols-3 gap-2 mb-2">
+      ${smallCard('Łączna masa', e.totalMass != null ? e.totalMass : '—', 'kg', 'bg-slate-50', 'text-slate-800')}
+      ${smallCard('% tłuszczu', e.fatPercent != null ? e.fatPercent : '—', '%', 'bg-orange-50', 'text-orange-600')}
+      ${smallCard('Masa tłuszczu', e.fatMass != null ? e.fatMass.toFixed(2) : '—', 'kg', 'bg-red-50', 'text-red-600')}
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      ${smallCard('Tkanka beztłuszczowa', e.leanMass != null ? e.leanMass.toFixed(2) : '—', 'kg', 'bg-green-50', 'text-green-700')}
+      ${smallCard('BMC', e.bmc != null ? e.bmc.toFixed(3) : '—', 'kg', 'bg-blue-50', 'text-blue-700')}
     </div>
   </div>`;
 }
 
 function initDexaChart() {
-  const sorted = [...state.dexa].sort((a,b) => a.date > b.date ? 1 : -1);
+  const s = [...state.dexa].sort((a,b) => a.date.localeCompare(b.date));
   const el = document.getElementById('dexa_chart');
   if (!el) return;
   charts['dexa_chart'] = new Chart(el, {
     type: 'bar',
     data: {
-      labels: sorted.map(e => fmt(e.date)),
+      labels: s.map(e => fmt(e.date)),
       datasets: [
-        { label: 'Tkanka tłuszczowa (kg)', data: sorted.map(e => e.fatMass), backgroundColor: 'rgba(249,115,22,0.75)', stack: 'body' },
-        { label: 'Tkanka beztłuszczowa (kg)', data: sorted.map(e => e.leanMass), backgroundColor: 'rgba(34,197,94,0.75)', stack: 'body' },
-        { label: 'BMC (kg)', data: sorted.map(e => e.bmc), backgroundColor: 'rgba(59,130,246,0.75)', stack: 'body' },
+        { label: 'Tłuszcz (kg)',       data: s.map(e => e.fatMass),  backgroundColor: 'rgba(249,115,22,0.75)', stack: 'b' },
+        { label: 'Tkanka lean (kg)',    data: s.map(e => e.leanMass), backgroundColor: 'rgba(34,197,94,0.75)',  stack: 'b' },
+        { label: 'BMC (kg)',            data: s.map(e => e.bmc),      backgroundColor: 'rgba(59,130,246,0.75)', stack: 'b' },
       ],
     },
     options: {
       ...baseOpts('kg'),
       scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } },
-        y: { stacked: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { stacked: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
       },
     },
   });
@@ -470,47 +422,31 @@ function initDexaChart() {
 // WAGA
 // ─────────────────────────────────────────────
 function renderWaga() {
-  const sorted = [...state.waga].sort((a,b) => a.date > b.date ? -1 : 1);
+  const sorted = [...state.waga].sort((a,b) => b.date.localeCompare(a.date));
   const rows = sorted.map(e => `
-    <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+    <div class="flex justify-between items-center py-2.5 border-b border-slate-50 last:border-0">
       <span class="text-sm text-slate-600">${fmt(e.date)}</span>
       <span class="font-bold text-indigo-600">${e.weight} kg</span>
-      <button onclick="del('waga','${e.id}')" class="text-xs text-red-400 hover:text-red-600 w-5">✕</button>
+      <button onclick="del('waga','${e.id}')" class="text-red-400 py-1 px-2 text-xs -mr-1">✕</button>
     </div>`).join('');
 
-  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <div class="space-y-4">
-      ${formCard('Dodaj pomiar wagi', 'wagaForm',
-        formInput('date', 'Data', 'date', '', '', today()) +
-        formInput('weight', 'Waga (kg)', 'number', '0.1', 'np. 95.3') +
-        addBtn('Zapisz pomiar')
-      )}
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-3">Historia pomiarów</h3>
-        <div class="max-h-72 overflow-y-auto pr-1">${rows || '<p class="text-slate-400 text-sm">Brak pomiarów.</p>'}</div>
-      </div>
-    </div>
-    <div class="lg:col-span-2">
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">Trend wagi</h3>
-        <canvas id="waga_chart" height="280"></canvas>
-      </div>
-    </div>
-  </div>`;
+  return `
+    ${sectionCard('Dodaj pomiar', `<form id="wagaForm" class="space-y-3">
+      ${inp('date', 'Data', 'date', '', '', today())}
+      ${inp('weight', 'Waga (kg)', 'number', 'any', 'np. 95.3')}
+      ${submitBtn('Zapisz pomiar')}
+    </form>`)}
+    ${sectionCard('Trend wagi', '<canvas id="waga_chart" height="220"></canvas>')}
+    ${sectionCard('Historia', `<div class="max-h-64 overflow-y-auto">${rows || '<p class="text-slate-400 text-sm">Brak pomiarów.</p>'}</div>`)}
+  `;
 }
 
 function initWagaChart() {
-  const sorted = [...state.waga].sort((a,b) => a.date > b.date ? 1 : -1);
-  makeLine('waga_chart', sorted.map(e => fmt(e.date)), [{
-    label: 'Waga (kg)',
-    data: sorted.map(e => e.weight),
-    borderColor: '#4F46E5',
-    backgroundColor: 'rgba(79,70,229,0.07)',
-    tension: 0.4,
-    fill: true,
-    pointRadius: 4,
-    pointHoverRadius: 6,
-    pointBackgroundColor: '#4F46E5',
+  const s = [...state.waga].sort((a,b) => a.date.localeCompare(b.date));
+  makeLine('waga_chart', s.map(e => fmt(e.date)), [{
+    label: 'Waga (kg)', data: s.map(e => e.weight),
+    borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,0.07)',
+    tension: 0.4, fill: true, pointRadius: 3, pointHoverRadius: 6, pointBackgroundColor: '#4F46E5',
   }], 'kg');
 }
 
@@ -522,80 +458,58 @@ function renderKalorie() {
   const pCal = proteinG * 4, cCal = carbsG * 4, fCal = fatG * 9;
   const tot = (pCal + cCal + fCal) || 1;
 
-  function macroBar(label, g, cal, barColor, textColor) {
+  function mBar(label, g, cal, bar, text) {
     return `<div>
-      <div class="flex justify-between text-xs mb-1">
-        <span class="${textColor} font-medium">${label}</span>
-        <span class="text-slate-500">${g}g = ${cal} kcal</span>
-      </div>
-      <div class="w-full bg-slate-100 rounded-full h-2">
-        <div class="${barColor} h-2 rounded-full" style="width:${Math.round(cal/tot*100)}%"></div>
-      </div>
+      <div class="flex justify-between text-xs mb-1"><span class="${text} font-medium">${label}</span><span class="text-slate-500">${g}g · ${cal} kcal</span></div>
+      <div class="w-full bg-slate-100 rounded-full h-2"><div class="${bar} h-2 rounded-full" style="width:${Math.round(cal/tot*100)}%"></div></div>
     </div>`;
   }
 
-  const recentEntries = [...entries].sort((a,b) => a.date > b.date ? -1 : 1);
+  const recentEntries = [...entries].sort((a,b) => b.date.localeCompare(a.date));
 
   const entryRows = recentEntries.map(e => {
     const diff = (e.calories || 0) - target;
     const cls = Math.abs(diff) <= 150 ? 'text-green-600' : diff > 0 ? 'text-red-500' : 'text-blue-500';
-    return `<div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0 gap-2">
-      <span class="text-sm text-slate-600 w-20 shrink-0">${fmt(e.date)}</span>
-      <span class="font-bold ${cls}">${e.calories} kcal</span>
+    return `<div class="flex items-center gap-2 py-2.5 border-b border-slate-50 last:border-0">
+      <span class="text-sm text-slate-500 w-20 shrink-0">${fmt(e.date)}</span>
+      <span class="font-bold ${cls} grow">${e.calories} kcal</span>
       <span class="text-xs ${cls} shrink-0">${diff >= 0 ? '+' : ''}${diff}</span>
-      <div class="text-xs text-slate-400 hidden sm:block">${e.protein != null ? e.protein : '—'}g B · ${e.carbs != null ? e.carbs : '—'}g W · ${e.fat != null ? e.fat : '—'}g T</div>
-      <button onclick="del('kalorie_entry','${e.id}')" class="text-xs text-red-400 hover:text-red-600 shrink-0">✕</button>
+      <button onclick="del('kalorie_entry','${e.id}')" class="text-red-400 py-1 px-1.5 text-xs shrink-0">✕</button>
     </div>`;
   }).join('');
 
-  return `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <div class="space-y-4">
-      ${formCard('Cel dzienny', 'targetForm',
-        formInput('target', 'Kalorie (kcal)', 'number', '1', '', target) +
-        formInput('proteinG', 'Białko (g)', 'number', '1', '', proteinG) +
-        formInput('carbsG', 'Węglowodany (g)', 'number', '1', '', carbsG) +
-        formInput('fatG', 'Tłuszcze (g)', 'number', '1', '', fatG) +
-        addBtn('Zapisz cel', 'slate')
-      )}
-
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-3">Makroskładniki</h3>
-        <div class="space-y-3">
-          ${macroBar('Białko', proteinG, pCal, 'bg-red-400', 'text-red-600')}
-          ${macroBar('Węglowodany', carbsG, cCal, 'bg-yellow-400', 'text-yellow-600')}
-          ${macroBar('Tłuszcze', fatG, fCal, 'bg-blue-400', 'text-blue-600')}
-          <div class="flex justify-between pt-2 border-t border-slate-100 text-sm">
-            <span class="font-medium text-slate-600">Razem</span>
-            <span class="font-bold text-indigo-600">${tot} kcal</span>
-          </div>
-        </div>
+  return `
+    ${sectionCard('Cel dzienny', `<form id="targetForm" class="space-y-3">
+      ${inp('target',   'Kalorie (kcal)',     'number', '1', '', target)}
+      ${inp('proteinG', 'Białko (g)',          'number', '1', '', proteinG)}
+      ${inp('carbsG',   'Węglowodany (g)',     'number', '1', '', carbsG)}
+      ${inp('fatG',     'Tłuszcze (g)',        'number', '1', '', fatG)}
+      ${submitBtn('Zapisz cel', 'slate')}
+    </form>`)}
+    ${sectionCard('Makroskładniki', `<div class="space-y-3">
+      ${mBar('Białko', proteinG, pCal, 'bg-red-400', 'text-red-600')}
+      ${mBar('Węglowodany', carbsG, cCal, 'bg-yellow-400', 'text-yellow-600')}
+      ${mBar('Tłuszcze', fatG, fCal, 'bg-blue-400', 'text-blue-600')}
+      <div class="flex justify-between pt-2 border-t border-slate-100 text-sm">
+        <span class="font-medium text-slate-600">Razem</span>
+        <span class="font-bold text-indigo-600">${tot} kcal</span>
       </div>
-
-      ${formCard('Zapisz dzień', 'kalorieEntryForm',
-        formInput('date', 'Data', 'date', '', '', today()) +
-        formInput('calories', 'Kalorie (kcal)', 'number', '1', target.toString()) +
-        formInput('protein', 'Białko (g)', 'number', '1', proteinG.toString()) +
-        formInput('carbs', 'Węglowodany (g)', 'number', '1', carbsG.toString()) +
-        formInput('fat', 'Tłuszcze (g)', 'number', '1', fatG.toString()) +
-        addBtn('Zapisz dzień', 'green')
-      )}
-    </div>
-
-    <div class="lg:col-span-2 space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-4">Spożycie kalorii — historia</h3>
-        <canvas id="kal_chart" height="220"></canvas>
-      </div>
-      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-700 mb-3">Dziennik</h3>
-        ${entryRows || '<p class="text-slate-400 text-sm">Brak wpisów.</p>'}
-      </div>
-    </div>
-  </div>`;
+    </div>`)}
+    ${sectionCard('Zapisz dzień', `<form id="kalorieEntryForm" class="space-y-3">
+      ${inp('date',     'Data',               'date',   '',  '', today())}
+      ${inp('calories', 'Kalorie (kcal)',      'number', '1', target.toString())}
+      ${inp('protein',  'Białko (g)',          'number', '1', proteinG.toString())}
+      ${inp('carbs',    'Węglowodany (g)',      'number', '1', carbsG.toString())}
+      ${inp('fat',      'Tłuszcze (g)',         'number', '1', fatG.toString())}
+      ${submitBtn('Zapisz dzień', 'green')}
+    </form>`)}
+    ${sectionCard('Kalorie — historia', '<canvas id="kal_chart" height="200"></canvas>')}
+    ${sectionCard('Dziennik', `<div>${entryRows || '<p class="text-slate-400 text-sm">Brak wpisów.</p>'}</div>`)}
+  `;
 }
 
 function initKalChart() {
-  const entries = [...state.kalorie.entries].sort((a,b) => a.date > b.date ? 1 : -1).slice(-60);
+  const entries = [...state.kalorie.entries].sort((a,b) => a.date.localeCompare(b.date)).slice(-60);
   const target = state.kalorie.target;
   const el = document.getElementById('kal_chart');
   if (!el) return;
@@ -608,21 +522,17 @@ function initKalChart() {
           label: 'Kalorie (kcal)',
           data: entries.map(e => e.calories),
           backgroundColor: entries.map(e => {
-            const diff = (e.calories || 0) - target;
-            if (Math.abs(diff) <= 150) return 'rgba(34,197,94,0.7)';
-            return diff > 0 ? 'rgba(239,68,68,0.7)' : 'rgba(59,130,246,0.7)';
+            const d = (e.calories || 0) - target;
+            if (Math.abs(d) <= 150) return 'rgba(34,197,94,0.75)';
+            return d > 0 ? 'rgba(239,68,68,0.75)' : 'rgba(59,130,246,0.75)';
           }),
-          borderRadius: 6,
+          borderRadius: 5,
         },
         {
           label: 'Cel (' + target + ' kcal)',
           data: entries.map(() => target),
-          type: 'line',
-          borderColor: '#94A3B8',
-          borderDash: [5, 5],
-          borderWidth: 1.5,
-          pointRadius: 0,
-          fill: false,
+          type: 'line', borderColor: '#94A3B8', borderDash: [4,4],
+          borderWidth: 1.5, pointRadius: 0, fill: false,
         },
       ],
     },
@@ -631,64 +541,37 @@ function initKalChart() {
 }
 
 // ─────────────────────────────────────────────
-// FORM SUBMISSION
+// FORMS
 // ─────────────────────────────────────────────
 document.addEventListener('submit', e => {
   e.preventDefault();
   const fd = Object.fromEntries(new FormData(e.target));
-
   switch (e.target.id) {
     case 'morfologiaForm': {
       const entry = { id: uid(), date: fd.date };
       MORF_FIELDS.forEach(f => { if (fd[f.key] !== '') entry[f.key] = parseFloat(fd[f.key]); });
-      state.morfologia.push(entry);
-      saveState(); switchTab('morfologia');
-      break;
+      state.morfologia.push(entry); saveState(); switchTab('morfologia'); break;
     }
     case 'hormonyForm': {
       const entry = { id: uid(), date: fd.date };
       HORM_FIELDS.forEach(f => { if (fd[f.key] !== '') entry[f.key] = parseFloat(fd[f.key]); });
-      state.hormony.push(entry);
-      saveState(); switchTab('hormony');
-      break;
+      state.hormony.push(entry); saveState(); switchTab('hormony'); break;
     }
     case 'dexaForm': {
-      state.dexa.push({
-        id: uid(), date: fd.date,
-        totalMass:  parseFloat(fd.totalMass),
-        fatMass:    parseFloat(fd.fatMass),
-        leanMass:   parseFloat(fd.leanMass),
-        fatPercent: parseFloat(fd.fatPercent),
-        bmc:        parseFloat(fd.bmc),
-      });
-      saveState(); switchTab('dexa');
-      break;
+      state.dexa.push({ id: uid(), date: fd.date, totalMass: parseFloat(fd.totalMass), fatMass: parseFloat(fd.fatMass), leanMass: parseFloat(fd.leanMass), fatPercent: parseFloat(fd.fatPercent), bmc: parseFloat(fd.bmc) });
+      saveState(); switchTab('dexa'); break;
     }
     case 'wagaForm': {
       state.waga.push({ id: uid(), date: fd.date, weight: parseFloat(fd.weight) });
-      saveState(); switchTab('waga');
-      break;
+      saveState(); switchTab('waga'); break;
     }
     case 'targetForm': {
-      Object.assign(state.kalorie, {
-        target:   parseInt(fd.target),
-        proteinG: parseInt(fd.proteinG),
-        carbsG:   parseInt(fd.carbsG),
-        fatG:     parseInt(fd.fatG),
-      });
-      saveState(); switchTab('kalorie');
-      break;
+      Object.assign(state.kalorie, { target: parseInt(fd.target), proteinG: parseInt(fd.proteinG), carbsG: parseInt(fd.carbsG), fatG: parseInt(fd.fatG) });
+      saveState(); switchTab('kalorie'); break;
     }
     case 'kalorieEntryForm': {
-      state.kalorie.entries.push({
-        id: uid(), date: fd.date,
-        calories: parseInt(fd.calories),
-        protein:  parseFloat(fd.protein),
-        carbs:    parseFloat(fd.carbs),
-        fat:      parseFloat(fd.fat),
-      });
-      saveState(); switchTab('kalorie');
-      break;
+      state.kalorie.entries.push({ id: uid(), date: fd.date, calories: parseInt(fd.calories), protein: parseFloat(fd.protein), carbs: parseFloat(fd.carbs), fat: parseFloat(fd.fat) });
+      saveState(); switchTab('kalorie'); break;
     }
   }
 });
@@ -697,13 +580,9 @@ document.addEventListener('submit', e => {
 // DELETE
 // ─────────────────────────────────────────────
 function del(type, id) {
-  if (type === 'kalorie_entry') {
-    state.kalorie.entries = state.kalorie.entries.filter(e => e.id !== id);
-  } else {
-    state[type] = state[type].filter(e => e.id !== id);
-  }
-  saveState();
-  renderContent();
+  if (type === 'kalorie_entry') { state.kalorie.entries = state.kalorie.entries.filter(e => e.id !== id); }
+  else { state[type] = state[type].filter(e => e.id !== id); }
+  saveState(); renderContent();
 }
 
 // ─────────────────────────────────────────────
